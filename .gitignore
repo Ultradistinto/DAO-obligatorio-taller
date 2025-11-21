@@ -1,0 +1,23 @@
+# Node modules
+node_modules/
+*/node_modules/
+
+# Build artifacts
+contratos/artifacts/
+contratos/cache/
+frontend/dist/
+
+# Environment variables
+.env
+*.env
+
+# Deployed addresses (opcional - podrías querer subirlo)
+# deployed-addresses.json
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
