@@ -135,4 +135,20 @@ contract SimpleMultiSig {
     function owners() public view returns (address[] memory) {
         return _owners;
     }
+
+    // Getter para obtener detalles de una transacción
+    function getTransaction(uint256 txnId_)
+        public
+        view
+        txnExists(txnId_)
+        returns (
+            address to,
+            uint256 value,
+            bytes memory data,
+            bool executed
+        )
+    {
+        Transaction storage txn = _transactions[txnId_];
+        return (txn.to, txn.value, txn.data, txn.executed);
+    }
 }

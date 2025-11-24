@@ -148,7 +148,11 @@ contract DAO is Ownable, ReentrancyGuard {
 
         uint256 tokenAmount = (msg.value * 1e18) / tokenPrice;
 
-        token.mint(msg.sender, tokenAmount);
+        // Verificar que el DAO tenga suficientes tokens
+        require(token.balanceOf(address(this)) >= tokenAmount, "Insufficient tokens in DAO");
+
+        // Transferir tokens del DAO al comprador (NO mintear)
+        require(token.transfer(msg.sender, tokenAmount), "Transfer failed");
 
         emit TokensPurchased(msg.sender, tokenAmount, msg.value);
     }
@@ -230,10 +234,16 @@ contract DAO is Ownable, ReentrancyGuard {
         minStakeToPropose = newMin;
         emit ParametersUpdated("minStakeToPropose", newMin);
     }
-    
 
+    // Mintear tokens (solo owner/multisig)
+    function mintTokens(address to, uint256 amount) external onlyOwner {
+        require(to != address(0), "Invalid address");
+        require(amount > 0, "Amount must be greater than 0");
 
+        token.mint(to, amount);
 
+        emit ParametersUpdated("tokensMinted", amount);
+    }
 
     // Para recibir ETH (para el treasury)
     receive() external payable {}

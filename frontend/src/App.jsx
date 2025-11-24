@@ -3,11 +3,14 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseEther, formatEther } from 'viem';
 import { DAO_ADDRESS, TOKEN_ADDRESS, DAO_ABI, TOKEN_ABI } from './contracts/config';
+import AdminPanel from './AdminPanel';
+import MultisigPanel from './MultisigPanel';
 import './App.css';
 
 function App() {
   const { address, isConnected } = useAccount();
   const [ethAmount, setEthAmount] = useState('0.01');
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   // Leer balance de tokens del usuario
   const { data: tokenBalance } = useReadContract({
@@ -65,54 +68,84 @@ function App() {
         <ConnectButton />
       </header>
 
-      {isConnected ? (
-        <main>
-          <section className="info-card">
-            <h2>📊 Tu Balance</h2>
-            <p>Address: {address}</p>
-            <p>
-              Tokens: {tokenBalance ? formatEther(tokenBalance) : '0'} DAOG
-            </p>
-            {stakeInfo && (
-              <>
-                <p>Staked para votar: {formatEther(stakeInfo.amountForVoting)} DAOG</p>
-                <p>Staked para proponer: {formatEther(stakeInfo.amountForProposing)} DAOG</p>
-              </>
-            )}
-          </section>
+      <nav className="tabs">
+        <button
+          className={activeTab === 'dashboard' ? 'tab active' : 'tab'}
+          onClick={() => setActiveTab('dashboard')}
+        >
+          📊 Dashboard
+        </button>
+        <button
+          className={activeTab === 'admin' ? 'tab active' : 'tab'}
+          onClick={() => setActiveTab('admin')}
+        >
+          ⚙️ Admin
+        </button>
+        <button
+          className={activeTab === 'multisig' ? 'tab active' : 'tab'}
+          onClick={() => setActiveTab('multisig')}
+        >
+          📋 Multisig
+        </button>
+      </nav>
 
-          <section className="buy-card">
-            <h2>💰 Comprar Tokens</h2>
-            <p>Precio: {tokenPrice ? formatEther(tokenPrice) : '...'} ETH por token</p>
-            <div className="input-group">
-              <input
-                type="number"
-                step="0.001"
-                value={ethAmount}
-                onChange={(e) => setEthAmount(e.target.value)}
-                placeholder="Cantidad en ETH"
-              />
-              <span>ETH</span>
-            </div>
-            <p className="estimate">
-              Recibirás aprox: {tokenPrice && ethAmount ?
-                formatEther((parseEther(ethAmount) * parseEther('1')) / tokenPrice) : '0'
-              } DAOG
-            </p>
-            <button
-              onClick={handleBuyTokens}
-              disabled={isPending || isConfirming}
-            >
-              {isPending ? 'Confirmando en wallet...' : isConfirming ? 'Comprando...' : 'Comprar Tokens'}
-            </button>
-            {isSuccess && <p className="success">✅ ¡Tokens comprados exitosamente!</p>}
-          </section>
-        </main>
-      ) : (
-        <main>
-          <p>👆 Conecta tu wallet para empezar</p>
-        </main>
-      )}
+      <main>
+        {activeTab === 'dashboard' && (
+          <>
+            <section className="info-card">
+              <h2>📊 Tu Balance</h2>
+              {isConnected ? (
+                <>
+                  <p>Address: {address}</p>
+                  <p>
+                    Tokens: {tokenBalance ? formatEther(tokenBalance) : '0'} DAOG
+                  </p>
+                  {stakeInfo && (
+                    <>
+                      <p>Staked para votar: {formatEther(stakeInfo.amountForVoting)} DAOG</p>
+                      <p>Staked para proponer: {formatEther(stakeInfo.amountForProposing)} DAOG</p>
+                    </>
+                  )}
+                </>
+              ) : (
+                <p className="connect-message">👆 Conecta tu wallet para ver tu balance</p>
+              )}
+            </section>
+
+            <section className="buy-card">
+              <h2>💰 Comprar Tokens</h2>
+              <p>Precio: {tokenPrice ? formatEther(tokenPrice) : '...'} ETH por token</p>
+              <div className="input-group">
+                <input
+                  type="number"
+                  step="0.001"
+                  value={ethAmount}
+                  onChange={(e) => setEthAmount(e.target.value)}
+                  placeholder="Cantidad en ETH"
+                />
+                <span>ETH</span>
+              </div>
+              <p className="estimate">
+                Recibirás aprox: {tokenPrice && ethAmount ?
+                  formatEther((parseEther(ethAmount) * parseEther('1')) / tokenPrice) : '0'
+                } DAOG
+              </p>
+              {!isConnected && (
+                <p className="warning-message">⚠️ Necesitas conectar tu wallet para comprar tokens</p>
+              )}
+              <button
+                onClick={handleBuyTokens}
+                disabled={isPending || isConfirming || !isConnected}
+              >
+                {!isConnected ? 'Conecta tu wallet' : isPending ? 'Confirmando en wallet...' : isConfirming ? 'Comprando...' : 'Comprar Tokens'}
+              </button>
+              {isSuccess && <p className="success">✅ ¡Tokens comprados exitosamente!</p>}
+            </section>
+          </>
+        )}
+        {activeTab === 'admin' && <AdminPanel />}
+        {activeTab === 'multisig' && <MultisigPanel />}
+      </main>
     </div>
   );
 }

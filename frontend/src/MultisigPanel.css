@@ -1,0 +1,362 @@
+.multisig-panel {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.multisig-panel h2 {
+  text-align: center;
+  margin-bottom: 24px;
+  font-size: 1.8em;
+}
+
+.multisig-selector {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  justify-content: center;
+}
+
+.selector-btn {
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid #444;
+  border-radius: 8px;
+  color: #888;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.selector-btn:hover {
+  border-color: #61dafb;
+  color: #fff;
+}
+
+.selector-btn.active {
+  background: #61dafb;
+  border-color: #61dafb;
+  color: #000;
+}
+
+.multisig-info {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.multisig-info p {
+  margin: 8px 0;
+  color: #ccc;
+}
+
+.multisig-info strong {
+  color: #61dafb;
+}
+
+.owner-badge-small {
+  display: inline-block;
+  padding: 4px 8px;
+  background: rgba(76, 175, 80, 0.2);
+  border: 1px solid #4caf50;
+  border-radius: 4px;
+  color: #4caf50;
+  font-size: 0.9em;
+  font-weight: bold;
+}
+
+.not-owner-badge-small {
+  display: inline-block;
+  padding: 4px 8px;
+  background: rgba(244, 67, 54, 0.2);
+  border: 1px solid #f44336;
+  border-radius: 4px;
+  color: #f44336;
+  font-size: 0.9em;
+  font-weight: bold;
+}
+
+.transactions-section {
+  margin-bottom: 32px;
+}
+
+.transactions-section h3 {
+  margin-bottom: 16px;
+  color: #61dafb;
+}
+
+.no-transactions {
+  text-align: center;
+  color: #888;
+  padding: 32px;
+  font-style: italic;
+}
+
+.transactions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.transaction-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.3s ease;
+}
+
+.transaction-card:hover {
+  border-color: #61dafb;
+  background: rgba(97, 218, 251, 0.05);
+}
+
+.transaction-card.executed {
+  border-color: #4caf50;
+  background: rgba(76, 175, 80, 0.05);
+}
+
+.transaction-card.pending {
+  border-color: #ffc107;
+}
+
+.tx-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.tx-id {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #61dafb;
+}
+
+.tx-status {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: bold;
+}
+
+.status-pending {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+}
+
+.status-executed {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+}
+
+.tx-body {
+  margin-bottom: 12px;
+}
+
+.tx-details {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  border-left: 3px solid #61dafb;
+}
+
+.tx-details p {
+  margin: 6px 0;
+  color: #ccc;
+  font-size: 0.95em;
+}
+
+.tx-function code,
+.tx-target code,
+.tx-args code {
+  background: rgba(97, 218, 251, 0.1);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: #61dafb;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+.address-short {
+  color: #888;
+}
+
+.tx-value {
+  color: #ffc107;
+}
+
+.tx-args {
+  margin-top: 8px;
+}
+
+.tx-args summary {
+  cursor: pointer;
+  color: #61dafb;
+  font-weight: bold;
+  user-select: none;
+}
+
+.tx-args summary:hover {
+  text-decoration: underline;
+}
+
+.tx-args ul {
+  margin: 8px 0 0 0;
+  padding-left: 20px;
+  list-style: none;
+}
+
+.tx-args li {
+  margin: 4px 0;
+  color: #ccc;
+}
+
+.tx-confirmations {
+  margin-bottom: 8px;
+  margin-top: 12px;
+  color: #ccc;
+}
+
+.confirmation-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.confirmation-progress {
+  height: 100%;
+  background: linear-gradient(90deg, #61dafb 0%, #4caf50 100%);
+  transition: width 0.3s ease;
+}
+
+.tx-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.confirm-btn {
+  padding: 8px 16px;
+  background: #61dafb;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.confirm-btn:hover:not(:disabled) {
+  background: #4fa8c5;
+  transform: translateY(-2px);
+}
+
+.confirm-btn:disabled {
+  background: #444;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.executed-label {
+  color: #4caf50;
+  font-weight: bold;
+  font-style: italic;
+}
+
+.manual-confirm {
+  background: rgba(97, 218, 251, 0.05);
+  border: 1px solid #61dafb;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.manual-confirm h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: #61dafb;
+}
+
+.manual-confirm .input-group {
+  display: flex;
+  gap: 12px;
+}
+
+.manual-confirm input {
+  flex: 1;
+  padding: 12px;
+  background: #2d2d2d;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 1em;
+}
+
+.manual-confirm input:focus {
+  outline: none;
+  border-color: #61dafb;
+}
+
+.manual-confirm button {
+  padding: 12px 24px;
+  background: #61dafb;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.manual-confirm button:hover:not(:disabled) {
+  background: #4fa8c5;
+}
+
+.manual-confirm button:disabled {
+  background: #444;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.status-message {
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 16px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.status-message.pending {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+  border: 1px solid #ffc107;
+}
+
+.status-message.confirming {
+  background: rgba(33, 150, 243, 0.2);
+  color: #2196f3;
+  border: 1px solid #2196f3;
+}
+
+.status-message.success {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border: 1px solid #4caf50;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .multisig-selector {
+    flex-direction: column;
+  }
+
+  .manual-confirm .input-group {
+    flex-direction: column;
+  }
+}

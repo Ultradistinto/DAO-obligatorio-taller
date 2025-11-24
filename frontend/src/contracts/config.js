@@ -1,5 +1,6 @@
 import DAOArtifact from './DAO.json';
 import TokenArtifact from './DAOToken.json';
+import MultisigArtifact from './SimpleMultiSig.json';
 import addresses from './addresses.json';
 
 export const DAO_ADDRESS = addresses.dao;
@@ -9,5 +10,6 @@ export const MULTISIG_PANIC_ADDRESS = addresses.multisigPanic;
 
 export const DAO_ABI = DAOArtifact.abi;
 export const TOKEN_ABI = TokenArtifact.abi;
+export const MULTISIG_ABI = MultisigArtifact.abi;
 
 export const ACCOUNTS = addresses.accounts;
