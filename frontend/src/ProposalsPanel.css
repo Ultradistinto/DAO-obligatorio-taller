@@ -1,0 +1,441 @@
+.proposals-panel {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.proposals-panel h2 {
+  text-align: center;
+  margin-bottom: 24px;
+  font-size: 1.8em;
+}
+
+/* Crear Propuesta */
+.create-proposal-section {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.create-proposal-section h3 {
+  margin-top: 0;
+  color: #61dafb;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #ccc;
+  font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  background: #2d2d2d;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 1em;
+  font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #61dafb;
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+.create-btn {
+  width: 100%;
+  padding: 12px;
+  background: #61dafb;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.create-btn:hover:not(:disabled) {
+  background: #4fa8c5;
+  transform: translateY(-2px);
+}
+
+.create-btn:disabled {
+  background: #444;
+  color: #888;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Filtros */
+.filters-section {
+  margin-bottom: 24px;
+}
+
+.filters-section h3 {
+  margin-bottom: 12px;
+  color: #61dafb;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid #444;
+  border-radius: 6px;
+  color: #888;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+  border-color: #61dafb;
+  color: #fff;
+}
+
+.filter-btn.active {
+  background: #61dafb;
+  border-color: #61dafb;
+  color: #000;
+}
+
+/* Lista de Propuestas */
+.proposals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.no-proposals {
+  text-align: center;
+  color: #888;
+  padding: 32px;
+  font-style: italic;
+}
+
+/* Propuesta Card */
+.proposal-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.proposal-card:hover {
+  border-color: #61dafb;
+  background: rgba(97, 218, 251, 0.05);
+}
+
+.proposal-card.status-active {
+  border-left: 4px solid #ffc107;
+}
+
+.proposal-card.status-accepted {
+  border-left: 4px solid #4caf50;
+}
+
+.proposal-card.status-rejected {
+  border-left: 4px solid #f44336;
+}
+
+.proposal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.proposal-id {
+  font-weight: bold;
+  color: #61dafb;
+  margin-right: 12px;
+}
+
+.proposal-status {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: bold;
+}
+
+.proposal-status.status-active {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+}
+
+.proposal-status.status-accepted {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+}
+
+.proposal-status.status-rejected {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+}
+
+.proposal-time {
+  font-size: 0.9em;
+}
+
+.time-left {
+  color: #ffc107;
+}
+
+.time-expired {
+  color: #f44336;
+}
+
+.proposal-body h4 {
+  margin: 0 0 12px 0;
+  font-size: 1.3em;
+  color: #fff;
+}
+
+.proposal-description {
+  color: #ccc;
+  margin-bottom: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.proposal-proposer {
+  color: #888;
+  font-size: 0.9em;
+}
+
+/* Votos */
+.proposal-votes {
+  margin: 20px 0;
+}
+
+.votes-summary {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.vote-count {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vote-label {
+  color: #888;
+  font-size: 0.9em;
+}
+
+.vote-value {
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+.vote-value.for {
+  color: #4caf50;
+}
+
+.vote-value.against {
+  color: #f44336;
+}
+
+.votes-bar {
+  display: flex;
+  height: 24px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.votes-bar-for {
+  background: linear-gradient(90deg, #4caf50, #66bb6a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.85em;
+  font-weight: bold;
+  transition: width 0.3s ease;
+}
+
+.votes-bar-against {
+  background: linear-gradient(90deg, #f44336, #ef5350);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.85em;
+  font-weight: bold;
+  transition: width 0.3s ease;
+}
+
+/* Acciones */
+.proposal-actions {
+  margin-top: 16px;
+}
+
+.vote-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.vote-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.vote-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.vote-for {
+  background: #4caf50;
+  color: #fff;
+}
+
+.vote-for:hover:not(:disabled) {
+  background: #45a049;
+  transform: translateY(-2px);
+}
+
+.vote-against {
+  background: #f44336;
+  color: #fff;
+}
+
+.vote-against:hover:not(:disabled) {
+  background: #da190b;
+  transform: translateY(-2px);
+}
+
+.finalize-btn {
+  width: 100%;
+  padding: 12px;
+  background: #ff9800;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.finalize-btn:hover:not(:disabled) {
+  background: #f57c00;
+  transform: translateY(-2px);
+}
+
+.finalize-btn:disabled {
+  background: #444;
+  color: #888;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.already-voted {
+  text-align: center;
+  color: #4caf50;
+  font-weight: bold;
+  padding: 12px;
+  background: rgba(76, 175, 80, 0.1);
+  border-radius: 6px;
+}
+
+.warning-message-small {
+  text-align: center;
+  color: #ffc107;
+  font-size: 0.9em;
+  padding: 8px;
+  background: rgba(255, 193, 7, 0.1);
+  border-radius: 6px;
+}
+
+/* Mensajes de estado */
+.status-message {
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 16px;
+  text-align: center;
+  font-weight: bold;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  min-width: 300px;
+}
+
+.status-message.pending {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+  border: 1px solid #ffc107;
+}
+
+.status-message.confirming {
+  background: rgba(33, 150, 243, 0.2);
+  color: #2196f3;
+  border: 1px solid #2196f3;
+}
+
+.status-message.success {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border: 1px solid #4caf50;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .proposals-panel {
+    padding: 12px;
+  }
+
+  .proposal-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .vote-buttons {
+    flex-direction: column;
+  }
+
+  .votes-summary {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .status-message {
+    left: 20px;
+    right: 20px;
+    min-width: auto;
+  }
+}

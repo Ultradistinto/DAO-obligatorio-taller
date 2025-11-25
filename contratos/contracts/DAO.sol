@@ -25,21 +25,15 @@ contract DAO is Ownable, ReentrancyGuard {
 
     enum ProposalStatus { ACTIVE, ACCEPTED, REJECTED }
 
-    enum ProposalType { NORMAL, TREASURY }
-
     struct Proposal {
-        uint256 id;
         string title;
         string description;
         address proposer;
         uint256 createdAt;
+        uint256 deadline;
         uint256 votesFor;
         uint256 votesAgainst;
         ProposalStatus status;
-        ProposalType proposalType;
-        // Para propuesta (Conjunto C)
-        address payable treasuryTarget;
-        uint256 treasuryAmount;
     }
 
     struct StakeInfo {
@@ -69,7 +63,6 @@ contract DAO is Ownable, ReentrancyGuard {
     event ProposalCreated(uint256 indexed proposalId, address indexed proposer, string title);
     event Voted(uint256 indexed proposalId, address indexed voter, bool inFavor, uint256 votingPower);
     event ProposalExecuted(uint256 indexed proposalId, ProposalStatus status);
-    event TreasuryTransferExecuted(uint256 indexed proposalId, address indexed to, uint256 amount);
     event ParametersUpdated(string paramName, uint256 newValue);
 
     // ============ ERRORS ============
@@ -235,7 +228,6 @@ contract DAO is Ownable, ReentrancyGuard {
         emit ParametersUpdated("minStakeToPropose", newMin);
     }
 
-    // Mintear tokens (solo owner/multisig)
     function mintTokens(address to, uint256 amount) external onlyOwner {
         require(to != address(0), "Invalid address");
         require(amount > 0, "Amount must be greater than 0");
@@ -243,6 +235,132 @@ contract DAO is Ownable, ReentrancyGuard {
         token.mint(to, amount);
 
         emit ParametersUpdated("tokensMinted", amount);
+    }
+
+    // ============ SISTEMA DE PROPUESTAS ============
+
+    function createProposal(
+        string memory title,
+        string memory description
+    ) external whenNotPaused returns (uint256) {
+        // Verificar que el usuario tiene suficiente stake para proponer
+        if (stakes[msg.sender].amountForProposing < minStakeToPropose) {
+            revert InsufficientStake();
+        }
+
+        uint256 proposalId = proposalCount;
+        proposalCount++;
+
+        Proposal storage newProposal = proposals[proposalId];
+        newProposal.title = title;
+        newProposal.description = description;
+        newProposal.proposer = msg.sender;
+        newProposal.createdAt = block.timestamp;
+        newProposal.deadline = block.timestamp + proposalDuration;
+        newProposal.votesFor = 0;
+        newProposal.votesAgainst = 0;
+        newProposal.status = ProposalStatus.ACTIVE;
+
+        emit ProposalCreated(proposalId, msg.sender, title);
+
+        return proposalId;
+    }
+
+    function vote(uint256 proposalId, bool inFavor) external whenNotPaused {
+        Proposal storage proposal = proposals[proposalId];
+
+        // Validaciones
+        if (proposal.createdAt == 0) revert InvalidProposal();
+        if (proposal.status != ProposalStatus.ACTIVE) revert ProposalNotActive();
+        if (block.timestamp > proposal.deadline) revert ProposalNotActive();
+        if (stakes[msg.sender].amountForVoting < minStakeToVote) revert InsufficientStake();
+        if (hasVoted[proposalId][msg.sender]) revert AlreadyVoted();
+
+        // Calcular voting power del usuario
+        uint256 votingPower = calculateVotingPower(msg.sender);
+        require(votingPower > 0, "No voting power");
+
+        // Registrar voto
+        hasVoted[proposalId][msg.sender] = true;
+
+        if (inFavor) {
+            proposal.votesFor += votingPower;
+        } else {
+            proposal.votesAgainst += votingPower;
+        }
+
+        emit Voted(proposalId, msg.sender, inFavor, votingPower);
+    }
+
+    function finalizeProposal(uint256 proposalId) external {
+        Proposal storage proposal = proposals[proposalId];
+
+        // Validaciones
+        if (proposal.createdAt == 0) revert InvalidProposal();
+        if (proposal.status != ProposalStatus.ACTIVE) revert ProposalNotActive();
+        if (block.timestamp <= proposal.deadline) revert ProposalStillActive();
+
+        // Determinar resultado basado en votos
+        if (proposal.votesFor > proposal.votesAgainst) {
+            proposal.status = ProposalStatus.ACCEPTED;
+        } else {
+            proposal.status = ProposalStatus.REJECTED;
+        }
+
+        emit ProposalExecuted(proposalId, proposal.status);
+    }
+
+    // ============ GETTERS PARA PROPUESTAS ============
+
+    function getProposal(uint256 proposalId) external view returns (
+        string memory title,
+        string memory description,
+        address proposer,
+        uint256 createdAt,
+        uint256 deadline,
+        uint256 votesFor,
+        uint256 votesAgainst,
+        ProposalStatus status
+    ) {
+        Proposal storage proposal = proposals[proposalId];
+        return (
+            proposal.title,
+            proposal.description,
+            proposal.proposer,
+            proposal.createdAt,
+            proposal.deadline,
+            proposal.votesFor,
+            proposal.votesAgainst,
+            proposal.status
+        );
+    }
+
+    function userHasVoted(uint256 proposalId, address user) external view returns (bool) {
+        return hasVoted[proposalId][user];
+    }
+
+    function getActiveProposals() external view returns (uint256[] memory) {
+        uint256 activeCount = 0;
+
+        // Contar propuestas activas
+        for (uint256 i = 0; i < proposalCount; i++) {
+            if (proposals[i].status == ProposalStatus.ACTIVE && block.timestamp <= proposals[i].deadline) {
+                activeCount++;
+            }
+        }
+
+        // Crear array con IDs de propuestas activas
+        uint256[] memory activeIds = new uint256[](activeCount);
+        uint256 index = 0;
+
+        for (uint256 i = 0; i < proposalCount; i++) {
+            if (proposals[i].status == ProposalStatus.ACTIVE && block.timestamp <= proposals[i].deadline) {
+                activeIds[index] = i;
+                index++;
+            }
+        }
+
+        return activeIds;
     }
 
     // Para recibir ETH (para el treasury)

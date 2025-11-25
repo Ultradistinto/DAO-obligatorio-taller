@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseEther, formatEther, encodeFunctionData } from 'viem';
-import { DAO_ADDRESS, TOKEN_ADDRESS, DAO_ABI, TOKEN_ABI, MULTISIG_OWNER_ADDRESS, MULTISIG_PANIC_ADDRESS, MULTISIG_ABI } from './contracts/config';
+import { DAO_ADDRESS, TOKEN_ADDRESS, DAO_ABI, TOKEN_ABI, MULTISIG_OWNER_ADDRESS, MULTISIG_ABI } from './contracts/config';
 import './AdminPanel.css';
 
 function AdminPanel() {
@@ -15,10 +15,6 @@ function AdminPanel() {
   const [newTokenPrice, setNewTokenPrice] = useState('');
   const [newMinStakeVote, setNewMinStakeVote] = useState('');
   const [newMinStakePropose, setNewMinStakePropose] = useState('');
-  const [stakeAmountVote, setStakeAmountVote] = useState('');
-  const [stakeAmountPropose, setStakeAmountPropose] = useState('');
-  const [unstakeAmountVote, setUnstakeAmountVote] = useState('');
-  const [unstakeAmountPropose, setUnstakeAmountPropose] = useState('');
 
   // Leer parámetros actuales de la DAO
   const { data: tokenPrice } = useReadContract({
@@ -45,35 +41,11 @@ function AdminPanel() {
     functionName: 'isPaused',
   });
 
-  const { data: stakeInfo } = useReadContract({
-    address: DAO_ADDRESS,
-    abi: DAO_ABI,
-    functionName: 'getStakeInfo',
-    args: [address],
-    query: { enabled: !!address }
-  });
-
-  const { data: tokenBalance } = useReadContract({
-    address: TOKEN_ADDRESS,
-    abi: TOKEN_ABI,
-    functionName: 'balanceOf',
-    args: [address],
-    query: { enabled: !!address }
-  });
-
   const { data: daoTokenBalance } = useReadContract({
     address: TOKEN_ADDRESS,
     abi: TOKEN_ABI,
     functionName: 'balanceOf',
     args: [DAO_ADDRESS],
-  });
-
-  const { data: votingPower } = useReadContract({
-    address: DAO_ADDRESS,
-    abi: DAO_ABI,
-    functionName: 'calculateVotingPower',
-    args: [address],
-    query: { enabled: !!address }
   });
 
   // Leer owners del multisig Owner
@@ -83,34 +55,10 @@ function AdminPanel() {
     functionName: 'owners',
   });
 
-  // Leer owners del multisig Panic
-  const { data: multisigPanicOwners } = useReadContract({
-    address: MULTISIG_PANIC_ADDRESS,
-    abi: MULTISIG_ABI,
-    functionName: 'owners',
-  });
-
-  // Verificar si el usuario es owner de alguno de los multisigs
+  // Verificar si el usuario es owner del multisig owner
   const isOwnerMultisig = multisigOwnerOwners?.some(owner =>
     owner.toLowerCase() === address?.toLowerCase()
   );
-
-  const isPanicMultisig = multisigPanicOwners?.some(owner =>
-    owner.toLowerCase() === address?.toLowerCase()
-  );
-
-  // Leer cantidad de transacciones del multisig
-  const { data: ownerTxCount } = useReadContract({
-    address: MULTISIG_OWNER_ADDRESS,
-    abi: MULTISIG_ABI,
-    functionName: 'transactionCount',
-  });
-
-  const { data: panicTxCount } = useReadContract({
-    address: MULTISIG_PANIC_ADDRESS,
-    abi: MULTISIG_ABI,
-    functionName: 'transactionCount',
-  });
 
   // ============ FUNCIONES DE MULTISIG OWNER ============
 
@@ -184,89 +132,6 @@ function AdminPanel() {
       abi: MULTISIG_ABI,
       functionName: 'submitTransaction',
       args: [DAO_ADDRESS, 0n, updateData],
-    });
-  };
-
-  // ============ FUNCIONES DE MULTISIG PANIC ============
-
-  const handlePanic = async () => {
-    const panicData = encodeFunctionData({
-      abi: DAO_ABI,
-      functionName: 'panic',
-      args: [],
-    });
-
-    writeContract({
-      address: MULTISIG_PANIC_ADDRESS,
-      abi: MULTISIG_ABI,
-      functionName: 'submitTransaction',
-      args: [DAO_ADDRESS, 0n, panicData],
-    });
-  };
-
-  const handleTranquilidad = async () => {
-    const tranquilidadData = encodeFunctionData({
-      abi: DAO_ABI,
-      functionName: 'tranquilidad',
-      args: [],
-    });
-
-    writeContract({
-      address: MULTISIG_PANIC_ADDRESS,
-      abi: MULTISIG_ABI,
-      functionName: 'submitTransaction',
-      args: [DAO_ADDRESS, 0n, tranquilidadData],
-    });
-  };
-
-  // ============ FUNCIONES DE STAKING ============
-
-  const handleApproveTokens = async (amount) => {
-    writeContract({
-      address: TOKEN_ADDRESS,
-      abi: TOKEN_ABI,
-      functionName: 'approve',
-      args: [DAO_ADDRESS, parseEther(amount)],
-    });
-  };
-
-  const handleStakeForVoting = () => {
-    if (!stakeAmountVote) return;
-    writeContract({
-      address: DAO_ADDRESS,
-      abi: DAO_ABI,
-      functionName: 'stakeForVoting',
-      args: [parseEther(stakeAmountVote)],
-    });
-  };
-
-  const handleStakeForProposing = () => {
-    if (!stakeAmountPropose) return;
-    writeContract({
-      address: DAO_ADDRESS,
-      abi: DAO_ABI,
-      functionName: 'stakeForProposing',
-      args: [parseEther(stakeAmountPropose)],
-    });
-  };
-
-  const handleUnstakeFromVoting = () => {
-    if (!unstakeAmountVote) return;
-    writeContract({
-      address: DAO_ADDRESS,
-      abi: DAO_ABI,
-      functionName: 'unstakeFromVoting',
-      args: [parseEther(unstakeAmountVote)],
-    });
-  };
-
-  const handleUnstakeFromProposing = () => {
-    if (!unstakeAmountPropose) return;
-    writeContract({
-      address: DAO_ADDRESS,
-      abi: DAO_ABI,
-      functionName: 'unstakeFromProposing',
-      args: [parseEther(unstakeAmountPropose)],
     });
   };
 
@@ -370,113 +235,6 @@ function AdminPanel() {
           />
           <button onClick={handleUpdateMinStakePropose} disabled={isPending || isConfirming}>
             Actualizar
-          </button>
-        </div>
-      </section>
-
-      {/* MULTISIG PANIC */}
-      <section className="admin-section panic-section">
-        <h3>🚨 Sistema de Pánico (Multisig: {MULTISIG_PANIC_ADDRESS.slice(0, 6)}...)</h3>
-        <p className="section-note">
-          {isPanicMultisig ? (
-            <span className="owner-badge">✅ Eres owner de este multisig - Puedes proponer transacciones</span>
-          ) : (
-            <span className="not-owner-badge">❌ No eres owner de este multisig</span>
-          )}
-        </p>
-
-        <div className="panic-buttons">
-          <button
-            className="panic-button"
-            onClick={handlePanic}
-            disabled={isPending || isConfirming || isPaused}
-          >
-            🚨 Activar Pánico
-          </button>
-          <button
-            className="tranquil-button"
-            onClick={handleTranquilidad}
-            disabled={isPending || isConfirming || !isPaused}
-          >
-            ✅ Restaurar Tranquilidad
-          </button>
-        </div>
-      </section>
-
-      {/* STAKING */}
-      <section className="admin-section staking-section">
-        <h3>🔒 Staking</h3>
-
-        {address ? (
-          <div className="staking-info">
-            <p><strong>Tu balance:</strong> {tokenBalance ? formatEther(tokenBalance) : '0'} DAOG</p>
-            <p><strong>Staked para votar:</strong> {stakeInfo ? formatEther(stakeInfo.amountForVoting) : '0'} DAOG</p>
-            <p><strong>Staked para proponer:</strong> {stakeInfo ? formatEther(stakeInfo.amountForProposing) : '0'} DAOG</p>
-            <p><strong>Voting Power:</strong> {votingPower ? votingPower.toString() : '0'} VP</p>
-          </div>
-        ) : (
-          <p className="section-note">Conecta tu wallet para ver tu información de staking</p>
-        )}
-
-        <div className="admin-action">
-          <h4>Stakear para Votar</h4>
-          <input
-            type="number"
-            placeholder="Cantidad de tokens"
-            value={stakeAmountVote}
-            onChange={(e) => setStakeAmountVote(e.target.value)}
-          />
-          <div className="button-group">
-            <button onClick={() => handleApproveTokens(stakeAmountVote)} disabled={isPending || isConfirming || !address}>
-              {!address ? 'Conecta wallet' : '1. Aprobar'}
-            </button>
-            <button onClick={handleStakeForVoting} disabled={isPending || isConfirming || !address}>
-              {!address ? 'Conecta wallet' : '2. Stakear'}
-            </button>
-          </div>
-        </div>
-
-        <div className="admin-action">
-          <h4>Stakear para Proponer</h4>
-          <input
-            type="number"
-            placeholder="Cantidad de tokens"
-            value={stakeAmountPropose}
-            onChange={(e) => setStakeAmountPropose(e.target.value)}
-          />
-          <div className="button-group">
-            <button onClick={() => handleApproveTokens(stakeAmountPropose)} disabled={isPending || isConfirming || !address}>
-              {!address ? 'Conecta wallet' : '1. Aprobar'}
-            </button>
-            <button onClick={handleStakeForProposing} disabled={isPending || isConfirming || !address}>
-              {!address ? 'Conecta wallet' : '2. Stakear'}
-            </button>
-          </div>
-        </div>
-
-        <div className="admin-action">
-          <h4>Unstakear de Votación</h4>
-          <input
-            type="number"
-            placeholder="Cantidad de tokens"
-            value={unstakeAmountVote}
-            onChange={(e) => setUnstakeAmountVote(e.target.value)}
-          />
-          <button onClick={handleUnstakeFromVoting} disabled={isPending || isConfirming || !address}>
-            {!address ? 'Conecta wallet' : 'Unstakear'}
-          </button>
-        </div>
-
-        <div className="admin-action">
-          <h4>Unstakear de Propuestas</h4>
-          <input
-            type="number"
-            placeholder="Cantidad de tokens"
-            value={unstakeAmountPropose}
-            onChange={(e) => setUnstakeAmountPropose(e.target.value)}
-          />
-          <button onClick={handleUnstakeFromProposing} disabled={isPending || isConfirming || !address}>
-            {!address ? 'Conecta wallet' : 'Unstakear'}
           </button>
         </div>
       </section>

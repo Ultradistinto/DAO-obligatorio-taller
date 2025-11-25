@@ -129,3 +129,155 @@
     border-radius: 6px;
     margin: 1rem 0;
   }
+
+  /* Staking Section */
+  .staking-card {
+    background: #1a1a1a;
+    padding: 2rem;
+    border-radius: 8px;
+    border: 1px solid #333;
+  }
+
+  .staking-card h2 {
+    margin-top: 0;
+  }
+
+  .staking-info {
+    background: rgba(100, 108, 255, 0.1);
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+  }
+
+  .staking-info p {
+    margin: 0.5rem 0;
+  }
+
+  .staking-section {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+    border-left: 3px solid #646cff;
+  }
+
+  .staking-section h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    color: #646cff;
+  }
+
+  .button-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .button-group button {
+    flex: 1;
+  }
+
+  .info-message {
+    color: #61dafb;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(97, 218, 251, 0.1);
+    border-radius: 4px;
+    border-left: 3px solid #61dafb;
+  }
+
+  /* Alert boxes flotantes */
+  .alert-box {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    min-width: 350px;
+    max-width: 500px;
+    padding: 16px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 9999;
+    animation: slideIn 0.3s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .alert-icon {
+    font-size: 1.5em;
+    flex-shrink: 0;
+  }
+
+  .alert-text {
+    flex: 1;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .alert-close {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .alert-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .error-alert {
+    background: linear-gradient(135deg, #d32f2f 0%, #f44336 100%);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .success-alert {
+    background: linear-gradient(135deg, #388e3c 0%, #4caf50 100%);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .pending-alert {
+    background: linear-gradient(135deg, #f57c00 0%, #ff9800 100%);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .confirming-alert {
+    background: linear-gradient(135deg, #1976d2 0%, #2196f3 100%);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  /* Responsive para alerts */
+  @media (max-width: 768px) {
+    .alert-box {
+      left: 16px;
+      right: 16px;
+      min-width: auto;
+      bottom: 16px;
+    }
+  }
