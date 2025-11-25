@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseEther, formatEther } from 'viem';
+import { LayoutDashboard, Settings, FileText, Vote, AlertTriangle, Lock, Coins } from 'lucide-react';
 import { DAO_ADDRESS, TOKEN_ADDRESS, DAO_ABI, TOKEN_ABI } from './contracts/config';
 import AdminPanel from './AdminPanel';
 import MultisigPanel from './MultisigPanel';
@@ -285,7 +286,7 @@ function App() {
   return (
     <div className="App">
       <header>
-        <h1>🏛️ DAO Governance System</h1>
+        <h1>DAO Governance System</h1>
         <ConnectButton />
       </header>
 
@@ -294,31 +295,36 @@ function App() {
           className={activeTab === 'dashboard' ? 'tab active' : 'tab'}
           onClick={() => setActiveTab('dashboard')}
         >
-          📊 Dashboard
+          <LayoutDashboard size={18} />
+          <span>Dashboard</span>
         </button>
         <button
           className={activeTab === 'admin' ? 'tab active' : 'tab'}
           onClick={() => setActiveTab('admin')}
         >
-          ⚙️ Admin
+          <Settings size={18} />
+          <span>Admin</span>
         </button>
         <button
           className={activeTab === 'multisig' ? 'tab active' : 'tab'}
           onClick={() => setActiveTab('multisig')}
         >
-          📋 Multisig
+          <FileText size={18} />
+          <span>Multisig</span>
         </button>
         <button
           className={activeTab === 'proposals' ? 'tab active' : 'tab'}
           onClick={() => setActiveTab('proposals')}
         >
-          🗳️ Propuestas
+          <Vote size={18} />
+          <span>Propuestas</span>
         </button>
         <button
           className={activeTab === 'panic' ? 'tab active' : 'tab'}
           onClick={() => setActiveTab('panic')}
         >
-          🚨 Pánico
+          <AlertTriangle size={18} />
+          <span>Pánico</span>
         </button>
       </nav>
 
@@ -326,7 +332,7 @@ function App() {
         {activeTab === 'dashboard' && (
           <>
             <section className="info-card">
-              <h2>📊 Tu Balance</h2>
+              <h2><Coins size={24} className="section-icon" /> Tu Balance</h2>
               {isConnected ? (
                 <>
                   <p>Address: {address}</p>
@@ -346,7 +352,7 @@ function App() {
             </section>
 
             <section className="buy-card">
-              <h2>💰 Comprar Tokens</h2>
+              <h2><Coins size={24} className="section-icon" /> Comprar Tokens</h2>
               <p>Precio: {tokenPrice ? formatEther(tokenPrice) : '...'} ETH por token</p>
               <div className="input-group">
                 <input
@@ -376,7 +382,7 @@ function App() {
             </section>
 
             <section className="staking-card">
-              <h2>🔒 Staking</h2>
+              <h2><Lock size={24} className="section-icon" /> Staking</h2>
               {isConnected ? (
                 <>
                   <div className="staking-info">

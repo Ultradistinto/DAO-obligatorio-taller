@@ -8,6 +8,14 @@
   text-align: center;
   margin-bottom: 24px;
   font-size: 1.8em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.panel-icon {
+  color: #61dafb;
 }
 
 /* Crear Propuesta */
@@ -203,10 +211,16 @@
 
 .time-left {
   color: #ffc107;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .time-expired {
   color: #f44336;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .proposal-body h4 {
@@ -311,6 +325,10 @@
   font-size: 1em;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .vote-btn:disabled {
@@ -349,6 +367,10 @@
   font-size: 1em;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .finalize-btn:hover:not(:disabled) {

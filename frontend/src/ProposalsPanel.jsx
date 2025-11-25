@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { Vote, ThumbsUp, ThumbsDown, Clock, CheckCircle, XCircle, Flag } from 'lucide-react';
 import { DAO_ADDRESS, DAO_ABI } from './contracts/config';
 import './ProposalsPanel.css';
 
@@ -76,7 +77,7 @@ function ProposalsPanel() {
 
   return (
     <div className="proposals-panel">
-      <h2>🗳️ Sistema de Propuestas</h2>
+      <h2><Vote size={28} className="panel-icon" /> Sistema de Propuestas</h2>
 
       {/* Crear Propuesta */}
       <section className="create-proposal-section">
@@ -264,10 +265,10 @@ function ProposalCard({ proposalId, userAddress, canVote, filterStatus, currentT
         </div>
         <div className="proposal-time">
           {isActive && !hasExpired && (
-            <span className="time-left">⏱️ {formatTime(timeLeft)}</span>
+            <span className="time-left"><Clock size={16} /> {formatTime(timeLeft)}</span>
           )}
           {isActive && hasExpired && (
-            <span className="time-expired">⏱️ Finalizada - Pendiente de cierre</span>
+            <span className="time-expired"><Clock size={16} /> Finalizada - Pendiente de cierre</span>
           )}
         </div>
       </div>
@@ -317,14 +318,14 @@ function ProposalCard({ proposalId, userAddress, canVote, filterStatus, currentT
                     onClick={() => handleVote(true)}
                     disabled={isPending || isConfirming}
                   >
-                    👍 A Favor
+                    <ThumbsUp size={18} /> A Favor
                   </button>
                   <button
                     className="vote-btn vote-against"
                     onClick={() => handleVote(false)}
                     disabled={isPending || isConfirming}
                   >
-                    👎 En Contra
+                    <ThumbsDown size={18} /> En Contra
                   </button>
                 </div>
               )
@@ -340,7 +341,7 @@ function ProposalCard({ proposalId, userAddress, canVote, filterStatus, currentT
             onClick={handleFinalize}
             disabled={isPending || isConfirming}
           >
-            🏁 Finalizar Propuesta
+            <Flag size={18} /> Finalizar Propuesta
           </button>
         )}
       </div>
