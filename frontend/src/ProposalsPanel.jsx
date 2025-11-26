@@ -11,7 +11,8 @@ function ProposalsPanel() {
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all'); // all, active, accepted, rejected
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [expandedProposal, setExpandedProposal] = useState(null);
   const [currentTime, setCurrentTime] = useState(Math.floor(Date.now() / 1000));
 
   // Timer para actualizar countdown
@@ -169,6 +170,8 @@ function ProposalsPanel() {
               currentTime={currentTime}
               isPending={isPending}
               isConfirming={isConfirming}
+              expandedProposal={expandedProposal}
+              setExpandedProposal={setExpandedProposal} 
             />
           ))
         )}
@@ -182,7 +185,7 @@ function ProposalsPanel() {
   );
 }
 
-function ProposalCard({ proposalId, userAddress, canVote, filterStatus, currentTime, isPending, isConfirming }) {
+function ProposalCard({ proposalId, userAddress, canVote, filterStatus, currentTime, isPending, isConfirming, expandedProposal, setExpandedProposal }) {
   const { writeContract } = useWriteContract();
 
   // Leer datos de la propuesta
@@ -201,6 +204,14 @@ function ProposalCard({ proposalId, userAddress, canVote, filterStatus, currentT
     args: [BigInt(proposalId), userAddress],
     query: { enabled: !!userAddress }
   });
+
+  const { data: voters } = useReadContract({
+    address: DAO_ADDRESS,
+    abi: DAO_ABI,
+    functionName: 'getProposalVoters',
+    args: [BigInt(proposalId)],
+  });
+
 
   if (!proposalData) return null;
 
@@ -345,6 +356,54 @@ function ProposalCard({ proposalId, userAddress, canVote, filterStatus, currentT
           </button>
         )}
       </div>
+      {voters && voters.length > 0 && (
+          <div className="voters-section">
+            <button
+              className="voters-toggle"
+              onClick={() => setExpandedProposal(expandedProposal === proposalId ? null : proposalId)}
+            >
+              {expandedProposal === proposalId ? '▼' : '▶'} Ver votantes ({voters.length})
+            </button>
+
+            {expandedProposal === proposalId && (
+              <div className="voters-list">
+                {voters.map((voter, index) => (
+                  <VoterItem key={index} proposalId={proposalId} voterAddress={voter} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+    </div>
+  );
+}
+
+function VoterItem({ proposalId, voterAddress }) {
+  const { data: voteChoice } = useReadContract({
+    address: DAO_ADDRESS,
+    abi: DAO_ABI,
+    functionName: 'getVoterChoice',
+    args: [BigInt(proposalId), voterAddress],
+  });
+
+  const { data: votingPower } = useReadContract({
+    address: DAO_ADDRESS,
+    abi: DAO_ABI,
+    functionName: 'calculateVotingPower',
+    args: [voterAddress],
+  });
+
+  return (
+    <div className="voter-item">
+      <span className="voter-address">
+        {voterAddress.slice(0, 6)}...{voterAddress.slice(-4)}
+      </span>
+      <span className={`voter-choice ${voteChoice ? 'for' : 'against'}`}>
+        {voteChoice ? '✓ A favor' : '✗ En contra'}
+      </span>
+      <span className="voter-power">
+        {votingPower ? votingPower.toString() : '0'} VP
+      </span>
     </div>
   );
 }

@@ -49,6 +49,7 @@ contract DAO is Ownable, ReentrancyGuard {
     mapping(uint256 => Proposal) public proposals;
     mapping(uint256 => mapping(address => bool)) public hasVoted;
     mapping(uint256 => mapping(address => bool)) public voteChoice; // true = a favor, false = en contra
+    mapping(uint256 => address[]) private proposalVoters; // ← AGREGAR ESTA LÍNEA
 
     uint256 public proposalCount;
 
@@ -269,19 +270,18 @@ contract DAO is Ownable, ReentrancyGuard {
     function vote(uint256 proposalId, bool inFavor) external whenNotPaused {
         Proposal storage proposal = proposals[proposalId];
 
-        // Validaciones
         if (proposal.createdAt == 0) revert InvalidProposal();
         if (proposal.status != ProposalStatus.ACTIVE) revert ProposalNotActive();
         if (block.timestamp > proposal.deadline) revert ProposalNotActive();
         if (stakes[msg.sender].amountForVoting < minStakeToVote) revert InsufficientStake();
         if (hasVoted[proposalId][msg.sender]) revert AlreadyVoted();
 
-        // Calcular voting power del usuario
         uint256 votingPower = calculateVotingPower(msg.sender);
         require(votingPower > 0, "No voting power");
 
-        // Registrar voto
         hasVoted[proposalId][msg.sender] = true;
+        voteChoice[proposalId][msg.sender] = inFavor;
+        proposalVoters[proposalId].push(msg.sender);
 
         if (inFavor) {
             proposal.votesFor += votingPower;
@@ -361,6 +361,14 @@ contract DAO is Ownable, ReentrancyGuard {
         }
 
         return activeIds;
+    }
+
+    function getProposalVoters(uint256 proposalId) external view returns (address[] memory) {
+        return proposalVoters[proposalId];
+    }
+
+    function getVoterChoice(uint256 proposalId, address voter) external view returns (bool) {
+        return voteChoice[proposalId][voter];
     }
 
     // Para recibir ETH (para el treasury)
