@@ -239,7 +239,8 @@ function ProposalsPanel() {
 }
 
 function ProposalCard({ proposalId, userAddress, canVote, filterStatus, currentTime, isPending, isConfirming, expandedProposal, setExpandedProposal }) {
-  const { writeContract } = useWriteContract();
+  const { data: hash, writeContract } = useWriteContract();
+  const { isSuccess } = useWaitForTransactionReceipt({ hash });
 
   const { data: proposalData, refetch: refetchProposal } = useReadContract({
     address: DAO_ADDRESS,
@@ -256,13 +257,20 @@ function ProposalCard({ proposalId, userAddress, canVote, filterStatus, currentT
     query: { enabled: !!userAddress }
   });
 
-  const { data: voters } = useReadContract({
+  const { data: voters, refetch: refetchVoters } = useReadContract({
     address: DAO_ADDRESS,
     abi: DAO_ABI,
     functionName: 'getProposalVoters',
     args: [BigInt(proposalId)],
   });
 
+  // Auto-refresh after voting
+  useEffect(() => {
+    if (isSuccess) {
+      refetchProposal();
+      refetchVoters();
+    }
+  }, [isSuccess, refetchProposal, refetchVoters]);
 
   if (!proposalData) return null;
 
@@ -445,7 +453,7 @@ function VoterItem({ proposalId, voterAddress }) {
   return (
     <div className="voter-item">
       <span className="voter-address">
-        {voterAddress.slice(0, 6)}...{voterAddress.slice(-4)}
+        {voterAddress}
       </span>
       <span className={`voter-choice ${voteChoice ? 'for' : 'against'}`}>
         {voteChoice ? '✓ A favor' : '✗ En contra'}

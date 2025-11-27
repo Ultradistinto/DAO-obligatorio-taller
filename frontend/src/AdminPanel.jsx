@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseEther, formatEther, encodeFunctionData, isAddress } from 'viem';
-import { Settings, BarChart3, Building2, Coins, CheckCircle, XCircle, Clock, AlertTriangle, Timer, Users } from 'lucide-react';
+import { Settings, BarChart3, Building2, Coins, CheckCircle, XCircle, Clock, AlertTriangle, Timer, Users, Lock, Zap, FileEdit } from 'lucide-react';
 import { DAO_ADDRESS, TOKEN_ADDRESS, DAO_ABI, TOKEN_ABI, MULTISIG_OWNER_ADDRESS, MULTISIG_ABI } from './contracts/config';
 import './AdminPanel.css';
 
@@ -228,7 +228,7 @@ function AdminPanel() {
           <div className="status-item">
             <span className="status-label">Estado:</span>
             <span className={isPaused ? "status-paused" : "status-active"}>
-              {isPaused ? '🔴 PAUSADA' : '🟢 ACTIVA'}
+              {isPaused ? <><XCircle size={16} /> PAUSADA</> : <><CheckCircle size={16} /> ACTIVA</>}
             </span>
           </div>
           <div className="status-item">
@@ -321,7 +321,7 @@ function AdminPanel() {
           </div>
 
           <div className="admin-action">
-            <h4>📝 Min Stake Proponer</h4>
+            <h4><FileEdit size={18} /> Min Stake Proponer</h4>
             <input
               type="number"
               placeholder="Cantidad de tokens"
@@ -334,7 +334,7 @@ function AdminPanel() {
           </div>
 
           <div className="admin-action">
-            <h4>🔒 Lock Time Staking</h4>
+            <h4><Lock size={18} /> Lock Time Staking</h4>
             <input
               type="number"
               placeholder="Segundos (ej: 300)"
@@ -360,7 +360,7 @@ function AdminPanel() {
           </div>
 
           <div className="admin-action">
-            <h4>⚡ Tokens por VP</h4>
+            <h4><Zap size={18} /> Tokens por VP</h4>
             <input
               type="number"
               placeholder="Tokens = 1 VP"

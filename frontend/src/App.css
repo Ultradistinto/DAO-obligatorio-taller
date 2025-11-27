@@ -56,6 +56,7 @@
     border: 1px solid #646cff;
     background: #242424;
     color: white;
+    box-sizing: border-box;
   }
 
   button {

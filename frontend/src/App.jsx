@@ -553,7 +553,7 @@ function App() {
                       {isVotingLocked ? `Bloqueado (${formatTimeLeft(votingTimeLeft)})` : 'Unstakear'}
                     </button>
                     {isVotingLocked && (
-                      <p className="warning-message">⏳ Debes esperar {formatTimeLeft(votingTimeLeft)} para unstakear (lock time: 5 min)</p>
+                      <p className="warning-message"><Clock size={14} /> Debes esperar {formatTimeLeft(votingTimeLeft)} para unstakear (lock time: 5 min)</p>
                     )}
                   </div>
 
@@ -574,7 +574,7 @@ function App() {
                       {isProposingLocked ? `Bloqueado (${formatTimeLeft(proposingTimeLeft)})` : 'Unstakear'}
                     </button>
                     {isProposingLocked && (
-                      <p className="warning-message">⏳ Debes esperar {formatTimeLeft(proposingTimeLeft)} para unstakear (lock time: 5 min)</p>
+                      <p className="warning-message"><Clock size={14} /> Debes esperar {formatTimeLeft(proposingTimeLeft)} para unstakear (lock time: 5 min)</p>
                     )}
                   </div>
                 </>

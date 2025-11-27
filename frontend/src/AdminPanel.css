@@ -118,6 +118,7 @@
   border-radius: 6px;
   color: #fff;
   font-size: 1em;
+  box-sizing: border-box;
 }
 
 .admin-action input:focus {
