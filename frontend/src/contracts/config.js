@@ -12,4 +12,4 @@ export const DAO_ABI = DAOArtifact.abi;
 export const TOKEN_ABI = TokenArtifact.abi;
 export const MULTISIG_ABI = MultisigArtifact.abi;
 
-export const ACCOUNTS = addresses.accounts;
+export const ACCOUNTS = addresses.owners || addresses.accounts || {};

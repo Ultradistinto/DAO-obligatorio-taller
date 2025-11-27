@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseEther, formatEther } from 'viem';
-import { LayoutDashboard, Settings, FileText, Vote, AlertTriangle, Lock, Coins } from 'lucide-react';
-import { DAO_ADDRESS, TOKEN_ADDRESS, DAO_ABI, TOKEN_ABI } from './contracts/config';
+import { LayoutDashboard, Settings, FileText, Vote, AlertTriangle, Lock, Coins, Copy, ExternalLink, CheckCircle, XCircle, Clock, Info, Wallet, DollarSign } from 'lucide-react';
+import { DAO_ADDRESS, TOKEN_ADDRESS, DAO_ABI, TOKEN_ABI, MULTISIG_OWNER_ADDRESS, MULTISIG_PANIC_ADDRESS } from './contracts/config';
+import addresses from './contracts/addresses.json';
 import AdminPanel from './AdminPanel';
 import MultisigPanel from './MultisigPanel';
 import ProposalsPanel from './ProposalsPanel';
@@ -99,7 +100,7 @@ function App() {
       if (daoTokenBalance < tokensToReceive) {
         const availableTokens = formatEther(daoTokenBalance);
         const requestedTokens = formatEther(tokensToReceive);
-        setError(`⚠️ No hay suficientes tokens en el DAO. Disponibles: ${availableTokens} DAOG, Solicitados: ${requestedTokens} DAOG`);
+        setError(`No hay suficientes tokens en el DAO. Disponibles: ${availableTokens} DAOG, Solicitados: ${requestedTokens} DAOG`);
         return;
       }
 
@@ -111,7 +112,7 @@ function App() {
       });
     } catch (err) {
       console.error('Error buying tokens:', err);
-      setError(`❌ Error: ${err.message || 'Error desconocido'}`);
+      setError(`Error: ${err.message || 'Error desconocido'}`);
     }
   };
 
@@ -150,7 +151,7 @@ function App() {
 
       if (!tokenBalance || tokenBalance < amount) {
         const available = tokenBalance ? formatEther(tokenBalance) : '0';
-        setError(`⚠️ No tienes suficientes tokens. Disponibles: ${available} DAOG, Necesitas: ${stakeAmountVote} DAOG`);
+        setError(`No tienes suficientes tokens. Disponibles: ${available} DAOG, Necesitas: ${stakeAmountVote} DAOG`);
         return;
       }
 
@@ -172,7 +173,7 @@ function App() {
       });
     } catch (err) {
       console.error('Error staking for voting:', err);
-      setError(`❌ Error: ${err.message || 'Error desconocido'}`);
+      setError(`Error: ${err.message || 'Error desconocido'}`);
     }
   };
 
@@ -184,7 +185,7 @@ function App() {
 
       if (!tokenBalance || tokenBalance < amount) {
         const available = tokenBalance ? formatEther(tokenBalance) : '0';
-        setError(`⚠️ No tienes suficientes tokens. Disponibles: ${available} DAOG, Necesitas: ${stakeAmountPropose} DAOG`);
+        setError(`No tienes suficientes tokens. Disponibles: ${available} DAOG, Necesitas: ${stakeAmountPropose} DAOG`);
         return;
       }
 
@@ -206,7 +207,7 @@ function App() {
       });
     } catch (err) {
       console.error('Error staking for proposing:', err);
-      setError(`❌ Error: ${err.message || 'Error desconocido'}`);
+      setError(`Error: ${err.message || 'Error desconocido'}`);
     }
   };
 
@@ -218,7 +219,7 @@ function App() {
 
       if (!stakeInfo || stakeInfo.amountForVoting < amount) {
         const staked = stakeInfo ? formatEther(stakeInfo.amountForVoting) : '0';
-        setError(`⚠️ No tienes suficiente stake. Stakeado: ${staked} DAOG, Intentas unstakear: ${unstakeAmountVote} DAOG`);
+        setError(`No tienes suficiente stake. Stakeado: ${staked} DAOG, Intentas unstakear: ${unstakeAmountVote} DAOG`);
         return;
       }
 
@@ -230,7 +231,7 @@ function App() {
       });
     } catch (err) {
       console.error('Error unstaking from voting:', err);
-      setError(`❌ Error: ${err.message || 'Error desconocido'}`);
+      setError(`Error: ${err.message || 'Error desconocido'}`);
     }
   };
 
@@ -242,7 +243,7 @@ function App() {
 
       if (!stakeInfo || stakeInfo.amountForProposing < amount) {
         const staked = stakeInfo ? formatEther(stakeInfo.amountForProposing) : '0';
-        setError(`⚠️ No tienes suficiente stake. Stakeado: ${staked} DAOG, Intentas unstakear: ${unstakeAmountPropose} DAOG`);
+        setError(`No tienes suficiente stake. Stakeado: ${staked} DAOG, Intentas unstakear: ${unstakeAmountPropose} DAOG`);
         return;
       }
 
@@ -254,7 +255,7 @@ function App() {
       });
     } catch (err) {
       console.error('Error unstaking from proposing:', err);
-      setError(`❌ Error: ${err.message || 'Error desconocido'}`);
+      setError(`Error: ${err.message || 'Error desconocido'}`);
     }
   };
 
@@ -263,6 +264,11 @@ function App() {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${minutes}m ${secs}s`;
+  };
+
+  const copyToClipboard = (text, label) => {
+    navigator.clipboard.writeText(text);
+    alert(`${label} copiada al portapapeles!`);
   };
 
   return (
@@ -335,15 +341,123 @@ function App() {
                     <p style={{
                       fontSize: '1.1rem',
                       fontWeight: 'bold',
-                      color: '#ff8f00'
+                      color: '#ff8f00',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
                     }}>
-                      💰 Treasury del DAO: {treasuryBalance ? formatEther(treasuryBalance) : '0'} ETH
+                      <DollarSign size={20} /> Treasury del DAO: {treasuryBalance ? formatEther(treasuryBalance) : '0'} ETH
                     </p>
                   </div>
                 </>
               ) : (
-                <p className="connect-message">👆 Conecta tu wallet para ver tu balance</p>
+                <p className="connect-message"><Wallet size={16} /> Conecta tu wallet para ver tu balance</p>
               )}
+            </section>
+
+            <section className="info-card">
+              <h2><FileText size={24} className="section-icon" /> Direcciones de Contratos</h2>
+              <div className="contract-addresses">
+                <div className="contract-item">
+                  <div className="contract-info">
+                    <span className="contract-label">DAO Contract</span>
+                    <div className="contract-address">{DAO_ADDRESS}</div>
+                  </div>
+                  <div className="contract-actions">
+                    <button
+                      className="icon-button"
+                      onClick={() => copyToClipboard(DAO_ADDRESS, 'Dirección del DAO')}
+                      title="Copiar dirección"
+                    >
+                      <Copy size={16} />
+                    </button>
+                    <a
+                      className="etherscan-link"
+                      href={addresses.explorerUrls.dao}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Ver en Etherscan"
+                    >
+                      <ExternalLink size={16} />
+                    </a>
+                  </div>
+                </div>
+
+                <div className="contract-item">
+                  <div className="contract-info">
+                    <span className="contract-label">Token (DAOG)</span>
+                    <div className="contract-address">{TOKEN_ADDRESS}</div>
+                  </div>
+                  <div className="contract-actions">
+                    <button
+                      className="icon-button"
+                      onClick={() => copyToClipboard(TOKEN_ADDRESS, 'Dirección del Token')}
+                      title="Copiar dirección"
+                    >
+                      <Copy size={16} />
+                    </button>
+                    <a
+                      className="etherscan-link"
+                      href={addresses.explorerUrls.token}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Ver en Etherscan"
+                    >
+                      <ExternalLink size={16} />
+                    </a>
+                  </div>
+                </div>
+
+                <div className="contract-item">
+                  <div className="contract-info">
+                    <span className="contract-label">Multisig Owner</span>
+                    <div className="contract-address">{MULTISIG_OWNER_ADDRESS}</div>
+                  </div>
+                  <div className="contract-actions">
+                    <button
+                      className="icon-button"
+                      onClick={() => copyToClipboard(MULTISIG_OWNER_ADDRESS, 'Dirección Multisig Owner')}
+                      title="Copiar dirección"
+                    >
+                      <Copy size={16} />
+                    </button>
+                    <a
+                      className="etherscan-link"
+                      href={addresses.explorerUrls.multisigOwner}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Ver en Etherscan"
+                    >
+                      <ExternalLink size={16} />
+                    </a>
+                  </div>
+                </div>
+
+                <div className="contract-item">
+                  <div className="contract-info">
+                    <span className="contract-label">Multisig Panic</span>
+                    <div className="contract-address">{MULTISIG_PANIC_ADDRESS}</div>
+                  </div>
+                  <div className="contract-actions">
+                    <button
+                      className="icon-button"
+                      onClick={() => copyToClipboard(MULTISIG_PANIC_ADDRESS, 'Dirección Multisig Panic')}
+                      title="Copiar dirección"
+                    >
+                      <Copy size={16} />
+                    </button>
+                    <a
+                      className="etherscan-link"
+                      href={addresses.explorerUrls.multisigPanic}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Ver en Etherscan"
+                    >
+                      <ExternalLink size={16} />
+                    </a>
+                  </div>
+                </div>
+              </div>
             </section>
 
             <section className="buy-card">
@@ -365,7 +479,7 @@ function App() {
                 } DAOG
               </p>
               {!isConnected && (
-                <p className="warning-message">⚠️ Necesitas conectar tu wallet para comprar tokens</p>
+                <p className="warning-message"><AlertTriangle size={16} /> Necesitas conectar tu wallet para comprar tokens</p>
               )}
               <button
                 onClick={handleBuyTokens}
@@ -373,7 +487,7 @@ function App() {
               >
                 {!isConnected ? 'Conecta tu wallet' : isPending ? 'Confirmando en wallet...' : isConfirming ? 'Comprando...' : 'Comprar Tokens'}
               </button>
-              {isSuccess && <p className="success">✅ ¡Tokens comprados exitosamente!</p>}
+              {isSuccess && <p className="success"><CheckCircle size={16} /> ¡Tokens comprados exitosamente!</p>}
             </section>
 
             <section className="staking-card">
@@ -400,7 +514,7 @@ function App() {
                       {isPending ? 'Confirmando...' : isConfirming ? 'Procesando...' : 'Stakear'}
                     </button>
                     {stakeAmountVote && allowance && allowance < parseEther(stakeAmountVote) && (
-                      <p className="info-message">ℹ️ Primera vez: necesitarás aprobar y luego stakear (2 transacciones)</p>
+                      <p className="info-message"><Info size={14} /> Primera vez: necesitarás aprobar y luego stakear (2 transacciones)</p>
                     )}
                   </div>
 
@@ -418,7 +532,7 @@ function App() {
                       {isPending ? 'Confirmando...' : isConfirming ? 'Procesando...' : 'Stakear'}
                     </button>
                     {stakeAmountPropose && allowance && allowance < parseEther(stakeAmountPropose) && (
-                      <p className="info-message">ℹ️ Primera vez: necesitarás aprobar y luego stakear (2 transacciones)</p>
+                      <p className="info-message"><Info size={14} /> Primera vez: necesitarás aprobar y luego stakear (2 transacciones)</p>
                     )}
                   </div>
 
@@ -439,7 +553,7 @@ function App() {
                       {isVotingLocked ? `Bloqueado (${formatTimeLeft(votingTimeLeft)})` : 'Unstakear'}
                     </button>
                     {isVotingLocked && (
-                      <p className="warning-message">⏳ Debes esperar {formatTimeLeft(votingTimeLeft)} para unstakear (lock time: 5 min)</p>
+                      <p className="warning-message"><Clock size={14} /> Debes esperar {formatTimeLeft(votingTimeLeft)} para unstakear (lock time: 5 min)</p>
                     )}
                   </div>
 
@@ -460,12 +574,12 @@ function App() {
                       {isProposingLocked ? `Bloqueado (${formatTimeLeft(proposingTimeLeft)})` : 'Unstakear'}
                     </button>
                     {isProposingLocked && (
-                      <p className="warning-message">⏳ Debes esperar {formatTimeLeft(proposingTimeLeft)} para unstakear (lock time: 5 min)</p>
+                      <p className="warning-message"><Clock size={14} /> Debes esperar {formatTimeLeft(proposingTimeLeft)} para unstakear (lock time: 5 min)</p>
                     )}
                   </div>
                 </>
               ) : (
-                <p className="connect-message">👆 Conecta tu wallet para stakear</p>
+                <p className="connect-message"><Wallet size={16} /> Conecta tu wallet para stakear</p>
               )}
             </section>
           </>
@@ -479,26 +593,26 @@ function App() {
       {/* Mensajes flotantes globales */}
       {error && (
         <div className="alert-box error-alert">
-          <span className="alert-icon">❌</span>
+          <span className="alert-icon"><XCircle size={24} /></span>
           <span className="alert-text">{error}</span>
           <button className="alert-close" onClick={() => setError('')}>✕</button>
         </div>
       )}
       {isSuccess && (
         <div className="alert-box success-alert">
-          <span className="alert-icon">✅</span>
+          <span className="alert-icon"><CheckCircle size={24} /></span>
           <span className="alert-text">¡Transacción exitosa!</span>
         </div>
       )}
       {isPending && (
         <div className="alert-box pending-alert">
-          <span className="alert-icon">⏳</span>
+          <span className="alert-icon"><Clock size={24} /></span>
           <span className="alert-text">Esperando confirmación en wallet...</span>
         </div>
       )}
       {isConfirming && (
         <div className="alert-box confirming-alert">
-          <span className="alert-icon">⏳</span>
+          <span className="alert-icon"><Clock size={24} /></span>
           <span className="alert-text">Procesando transacción...</span>
         </div>
       )}

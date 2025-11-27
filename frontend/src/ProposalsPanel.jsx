@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { parseEther, formatEther } from 'viem';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { Vote, ThumbsUp, ThumbsDown, Clock, CheckCircle, XCircle, Flag } from 'lucide-react';
+import { Vote, ThumbsUp, ThumbsDown, Clock, CheckCircle, XCircle, Flag, AlertTriangle, Coins, Hourglass } from 'lucide-react';
 import { DAO_ADDRESS, DAO_ABI } from './contracts/config';
 import './ProposalsPanel.css';
 
@@ -131,7 +131,7 @@ function ProposalsPanel() {
                       checked={isTreasuryProposal}
                       onChange={(e) => setIsTreasuryProposal(e.target.checked)}
                     />
-                    💰 Propuesta de Treasury (transferir ETH del balance de la DAO)
+                    <Coins size={14} /> Propuesta de Treasury (transferir ETH del balance de la DAO)
                   </label>
                 </div>
 
@@ -168,7 +168,7 @@ function ProposalsPanel() {
             </>
           ) : (
             <p className="warning-message">
-              ⚠️ Necesitas tener stakeado al menos {minStakeToPropose ? (Number(minStakeToPropose) / 1e18).toString() : '...'} DAOG para proponer.
+              <AlertTriangle size={14} /> Necesitas tener stakeado al menos {minStakeToPropose ? (Number(minStakeToPropose) / 1e18).toString() : '...'} DAOG para proponer.
               <br />Tu stake actual: {stakeInfo ? (Number(stakeInfo.amountForProposing) / 1e18).toString() : '0'} DAOG
             </p>
           )
@@ -231,15 +231,16 @@ function ProposalsPanel() {
       </section>
 
       {/* Mensajes de estado */}
-      {isSuccess && <p className="status-message success">✅ Transacción exitosa!</p>}
-      {isPending && <p className="status-message pending">⏳ Esperando confirmación en wallet...</p>}
-      {isConfirming && <p className="status-message confirming">⏳ Procesando transacción...</p>}
+      {isSuccess && <p className="status-message success"><CheckCircle size={16} /> Transacción exitosa!</p>}
+      {isPending && <p className="status-message pending"><Hourglass size={16} /> Esperando confirmación en wallet...</p>}
+      {isConfirming && <p className="status-message confirming"><Hourglass size={16} /> Procesando transacción...</p>}
     </div>
   );
 }
 
 function ProposalCard({ proposalId, userAddress, canVote, filterStatus, currentTime, isPending, isConfirming, expandedProposal, setExpandedProposal }) {
-  const { writeContract } = useWriteContract();
+  const { data: hash, writeContract } = useWriteContract();
+  const { isSuccess } = useWaitForTransactionReceipt({ hash });
 
   const { data: proposalData, refetch: refetchProposal } = useReadContract({
     address: DAO_ADDRESS,
@@ -256,13 +257,20 @@ function ProposalCard({ proposalId, userAddress, canVote, filterStatus, currentT
     query: { enabled: !!userAddress }
   });
 
-  const { data: voters } = useReadContract({
+  const { data: voters, refetch: refetchVoters } = useReadContract({
     address: DAO_ADDRESS,
     abi: DAO_ABI,
     functionName: 'getProposalVoters',
     args: [BigInt(proposalId)],
   });
 
+  // Auto-refresh after voting
+  useEffect(() => {
+    if (isSuccess) {
+      refetchProposal();
+      refetchVoters();
+    }
+  }, [isSuccess, refetchProposal, refetchVoters]);
 
   if (!proposalData) return null;
 
@@ -370,7 +378,7 @@ function ProposalCard({ proposalId, userAddress, canVote, filterStatus, currentT
           <>
             {canVote ? (
               hasVoted ? (
-                <p className="already-voted">✅ Ya votaste en esta propuesta</p>
+                <p className="already-voted"><CheckCircle size={16} /> Ya votaste en esta propuesta</p>
               ) : (
                 <div className="vote-buttons">
                   <button
@@ -390,7 +398,7 @@ function ProposalCard({ proposalId, userAddress, canVote, filterStatus, currentT
                 </div>
               )
             ) : (
-              <p className="warning-message-small">⚠️ Necesitas stake para votar</p>
+              <p className="warning-message-small"><AlertTriangle size={14} /> Necesitas stake para votar</p>
             )}
           </>
         )}
@@ -445,7 +453,7 @@ function VoterItem({ proposalId, voterAddress }) {
   return (
     <div className="voter-item">
       <span className="voter-address">
-        {voterAddress.slice(0, 6)}...{voterAddress.slice(-4)}
+        {voterAddress}
       </span>
       <span className={`voter-choice ${voteChoice ? 'for' : 'against'}`}>
         {voteChoice ? '✓ A favor' : '✗ En contra'}

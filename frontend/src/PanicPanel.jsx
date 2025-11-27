@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { decodeFunctionData, encodeFunctionData } from 'viem';
+import { AlertTriangle, CheckCircle, Clock, XCircle, Shield, Info } from 'lucide-react';
 import { MULTISIG_PANIC_ADDRESS, MULTISIG_ABI, DAO_ABI, DAO_ADDRESS } from './contracts/config';
 import './PanicPanel.css';
 
@@ -37,6 +38,14 @@ function PanicPanel() {
     owner.toLowerCase() === address?.toLowerCase()
   );
 
+  // Auto-refresh cuando la transacción es exitosa
+  useEffect(() => {
+    if (isSuccess) {
+      refetchTxCount();
+      refetchPaused();
+    }
+  }, [isSuccess, refetchTxCount, refetchPaused]);
+
   const handlePanic = () => {
     const panicData = encodeFunctionData({
       abi: DAO_ABI,
@@ -71,13 +80,15 @@ function PanicPanel() {
 
   return (
     <div className="panic-panel">
-      <h2>🚨 Panel de Pánico</h2>
+      <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <Shield size={28} /> Panel de Pánico
+      </h2>
 
       {/* Estado actual */}
       <section className="panic-status">
         <div className="status-card">
           <div className="status-icon">
-            {isPaused ? '🔴' : '🟢'}
+            {isPaused ? <XCircle size={32} color="#f44336" /> : <CheckCircle size={32} color="#4caf50" />}
           </div>
           <div className="status-info">
             <h3>Estado de la DAO</h3>
@@ -95,9 +106,9 @@ function PanicPanel() {
           <p>
             <strong>Tu rol:</strong>{' '}
             {isOwner ? (
-              <span className="owner-badge">✅ Eres owner</span>
+              <span className="owner-badge"><CheckCircle size={14} /> Eres owner</span>
             ) : (
-              <span className="not-owner-badge">❌ No eres owner</span>
+              <span className="not-owner-badge"><XCircle size={14} /> No eres owner</span>
             )}
           </p>
         </div>
@@ -113,18 +124,18 @@ function PanicPanel() {
               onClick={handlePanic}
               disabled={isPending || isConfirming || isPaused}
             >
-              🚨 Activar Pánico
+              <AlertTriangle size={18} /> Activar Pánico
             </button>
             <button
               className="tranquil-btn"
               onClick={handleTranquilidad}
               disabled={isPending || isConfirming || !isPaused}
             >
-              ✅ Restaurar Tranquilidad
+              <CheckCircle size={18} /> Restaurar Tranquilidad
             </button>
           </div>
           <p className="action-note">
-            ℹ️ Estas acciones crean una transacción en el multisig. Necesitas {requiredConfirmations?.toString() || '...'} confirmación(es) para ejecutarla.
+            <Info size={14} /> Estas acciones crean una transacción en el multisig. Necesitas {requiredConfirmations?.toString() || '...'} confirmación(es) para ejecutarla.
           </p>
         </section>
       )}
@@ -152,9 +163,9 @@ function PanicPanel() {
       </section>
 
       {/* Mensajes de estado */}
-      {isSuccess && <p className="status-message success">✅ Transacción confirmada exitosamente!</p>}
-      {isPending && <p className="status-message pending">⏳ Esperando confirmación en wallet...</p>}
-      {isConfirming && <p className="status-message confirming">⏳ Procesando transacción...</p>}
+      {isSuccess && <p className="status-message success"><CheckCircle size={16} /> Transacción confirmada exitosamente!</p>}
+      {isPending && <p className="status-message pending"><Clock size={16} /> Esperando confirmación en wallet...</p>}
+      {isConfirming && <p className="status-message confirming"><Clock size={16} /> Procesando transacción...</p>}
     </div>
   );
 }
@@ -207,7 +218,7 @@ function PanicTransactionCard({ txId, userAddress, isOwner, requiredConfirmation
       <div className="tx-header">
         <span className="tx-id">TX #{txId}</span>
         <span className={`tx-status ${isExecuted ? 'status-executed' : 'status-pending'}`}>
-          {isExecuted ? '✅ Ejecutada' : '⏳ Pendiente'}
+          {isExecuted ? <><CheckCircle size={14} /> Ejecutada</> : <><Clock size={14} /> Pendiente</>}
         </span>
       </div>
 
@@ -215,9 +226,9 @@ function PanicTransactionCard({ txId, userAddress, isOwner, requiredConfirmation
         <div className="tx-function">
           <strong>Acción:</strong>{' '}
           {functionName === 'panic' ? (
-            <span className="action-panic">🚨 Activar Pánico</span>
+            <span className="action-panic"><AlertTriangle size={14} /> Activar Pánico</span>
           ) : functionName === 'tranquilidad' ? (
-            <span className="action-tranquil">✅ Restaurar Tranquilidad</span>
+            <span className="action-tranquil"><CheckCircle size={14} /> Restaurar Tranquilidad</span>
           ) : (
             <span>{functionName}()</span>
           )}
