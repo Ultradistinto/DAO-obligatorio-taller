@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { parseEther, formatEther, encodeFunctionData } from 'viem';
+import { parseEther, formatEther, encodeFunctionData, isAddress } from 'viem';
+import { Settings, BarChart3, Building2, Coins, CheckCircle, XCircle, Clock, AlertTriangle, Timer, Users, Lock, Zap, FileEdit } from 'lucide-react';
 import { DAO_ADDRESS, TOKEN_ADDRESS, DAO_ABI, TOKEN_ABI, MULTISIG_OWNER_ADDRESS, MULTISIG_ABI } from './contracts/config';
 import './AdminPanel.css';
 
@@ -9,9 +10,9 @@ function AdminPanel() {
   const { data: hash, writeContract, isPending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
 
-  // Estados para inputs
   const [mintTo, setMintTo] = useState('');
   const [mintAmount, setMintAmount] = useState('');
+  const [newOwnerAddress, setNewOwnerAddress] = useState('');
   const [newTokenPrice, setNewTokenPrice] = useState('');
   const [newMinStakeVote, setNewMinStakeVote] = useState('');
   const [newMinStakePropose, setNewMinStakePropose] = useState('');
@@ -19,7 +20,6 @@ function AdminPanel() {
   const [newProposalDuration, setNewProposalDuration] = useState('');
   const [newTokensPerVP, setNewTokensPerVP] = useState('');
 
-  // Leer parámetros actuales de la DAO
   const { data: tokenPrice } = useReadContract({
     address: DAO_ADDRESS,
     abi: DAO_ABI,
@@ -69,40 +69,31 @@ function AdminPanel() {
     args: [DAO_ADDRESS],
   });
 
-  // Leer owners del multisig Owner
   const { data: multisigOwnerOwners } = useReadContract({
     address: MULTISIG_OWNER_ADDRESS,
     abi: MULTISIG_ABI,
     functionName: 'owners',
   });
 
-  // Verificar si el usuario es owner del multisig owner
   const isOwnerMultisig = multisigOwnerOwners?.some(owner =>
     owner.toLowerCase() === address?.toLowerCase()
   );
 
-  // ============ FUNCIONES DE MULTISIG OWNER ============
-
   const handleMintTokens = async () => {
     if (!mintTo || !mintAmount) return;
 
-    // Codificar la llamada a mintTokens del DAO
     const mintData = encodeFunctionData({
       abi: DAO_ABI,
       functionName: 'mintTokens',
       args: [mintTo, parseEther(mintAmount)],
     });
 
-    // Proponer transacción en el multisig
     writeContract({
       address: MULTISIG_OWNER_ADDRESS,
       abi: MULTISIG_ABI,
       functionName: 'submitTransaction',
       args: [DAO_ADDRESS, 0n, mintData],
     });
-
-    // Nota: El usuario tendrá que confirmar manualmente en una segunda transacción
-    // o podemos agregar auto-confirmación después
   };
 
   const handleUpdateTokenPrice = async () => {
@@ -162,7 +153,7 @@ function AdminPanel() {
     const updateData = encodeFunctionData({
       abi: DAO_ABI,
       functionName: 'updateStakingLockTime',
-      args: [BigInt(newStakingLockTime)], // En segundos
+      args: [BigInt(newStakingLockTime)],
     });
 
     writeContract({
@@ -179,7 +170,7 @@ function AdminPanel() {
     const updateData = encodeFunctionData({
       abi: DAO_ABI,
       functionName: 'updateProposalDuration',
-      args: [BigInt(newProposalDuration)], // En segundos
+      args: [BigInt(newProposalDuration)],
     });
 
     writeContract({
@@ -207,18 +198,37 @@ function AdminPanel() {
     });
   };
 
+  const handleTransferOwnership = async () => {
+    if (!newOwnerAddress || !isAddress(newOwnerAddress)) return;
+
+    const transferData = encodeFunctionData({
+      abi: DAO_ABI,
+      functionName: 'transferOwnership',
+      args: [newOwnerAddress],
+    });
+
+    writeContract({
+      address: MULTISIG_OWNER_ADDRESS,
+      abi: MULTISIG_ABI,
+      functionName: 'submitTransaction',
+      args: [DAO_ADDRESS, 0n, transferData],
+    });
+  };
+
   return (
     <div className="admin-panel">
-      <h2>⚙️ Panel de Administración</h2>
+      <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <Settings size={28} /> Panel de Administración
+      </h2>
 
       {/* ESTADO DE LA DAO */}
       <section className="admin-section status-section">
-        <h3>📊 Estado de la DAO</h3>
+        <h3><BarChart3 size={20} /> Estado de la DAO</h3>
         <div className="status-grid">
           <div className="status-item">
             <span className="status-label">Estado:</span>
             <span className={isPaused ? "status-paused" : "status-active"}>
-              {isPaused ? '🔴 PAUSADA' : '🟢 ACTIVA'}
+              {isPaused ? <><XCircle size={16} /> PAUSADA</> : <><CheckCircle size={16} /> ACTIVA</>}
             </span>
           </div>
           <div className="status-item">
@@ -254,117 +264,137 @@ function AdminPanel() {
 
       {/* MULTISIG OWNER */}
       <section className="admin-section">
-        <h3>🏛️ Funciones del Owner (Multisig: {MULTISIG_OWNER_ADDRESS.slice(0, 6)}...)</h3>
+        <h3><Building2 size={20} /> Funciones del Owner (Multisig: {MULTISIG_OWNER_ADDRESS.slice(0, 6)}...)</h3>
         <p className="section-note">
           {isOwnerMultisig ? (
-            <span className="owner-badge">✅ Eres owner de este multisig - Puedes proponer transacciones</span>
+            <span className="owner-badge"><CheckCircle size={14} /> Eres owner de este multisig - Puedes proponer transacciones</span>
           ) : (
-            <span className="not-owner-badge">❌ No eres owner de este multisig</span>
+            <span className="not-owner-badge"><XCircle size={14} /> No eres owner de este multisig</span>
           )}
         </p>
 
-        <div className="admin-action">
-          <h4>Mintear Tokens</h4>
-          <input
-            type="text"
-            placeholder="Address destino"
-            value={mintTo}
-            onChange={(e) => setMintTo(e.target.value)}
-          />
-          <input
-            type="number"
-            placeholder="Cantidad de tokens"
-            value={mintAmount}
-            onChange={(e) => setMintAmount(e.target.value)}
-          />
-          <button onClick={handleMintTokens} disabled={isPending || isConfirming}>
-            {isPending ? 'Confirmando...' : isConfirming ? 'Minteando...' : 'Mintear'}
-          </button>
-        </div>
+        <div className="admin-actions-grid">
+          <div className="admin-action">
+            <h4><Coins size={18} /> Mintear Tokens</h4>
+            <input
+              type="text"
+              placeholder="Address destino"
+              value={mintTo}
+              onChange={(e) => setMintTo(e.target.value)}
+            />
+            <input
+              type="number"
+              placeholder="Cantidad"
+              value={mintAmount}
+              onChange={(e) => setMintAmount(e.target.value)}
+            />
+            <button onClick={handleMintTokens} disabled={isPending || isConfirming}>
+              Mintear
+            </button>
+          </div>
 
-        <div className="admin-action">
-          <h4>Cambiar Precio del Token</h4>
-          <input
-            type="number"
-            step="0.0001"
-            placeholder="Nuevo precio en ETH"
-            value={newTokenPrice}
-            onChange={(e) => setNewTokenPrice(e.target.value)}
-          />
-          <button onClick={handleUpdateTokenPrice} disabled={isPending || isConfirming}>
-            Actualizar Precio
-          </button>
-        </div>
+          <div className="admin-action">
+            <h4><Coins size={18} /> Precio del Token</h4>
+            <input
+              type="number"
+              step="0.0001"
+              placeholder="Precio en ETH"
+              value={newTokenPrice}
+              onChange={(e) => setNewTokenPrice(e.target.value)}
+            />
+            <button onClick={handleUpdateTokenPrice} disabled={isPending || isConfirming}>
+              Actualizar
+            </button>
+          </div>
 
-        <div className="admin-action">
-          <h4>Cambiar Mínimo de Stake para Votar</h4>
-          <input
-            type="number"
-            placeholder="Nueva cantidad de tokens"
-            value={newMinStakeVote}
-            onChange={(e) => setNewMinStakeVote(e.target.value)}
-          />
-          <button onClick={handleUpdateMinStakeVote} disabled={isPending || isConfirming}>
-            Actualizar
-          </button>
-        </div>
+          <div className="admin-action">
+            <h4><Users size={18} /> Min Stake Votar</h4>
+            <input
+              type="number"
+              placeholder="Cantidad de tokens"
+              value={newMinStakeVote}
+              onChange={(e) => setNewMinStakeVote(e.target.value)}
+            />
+            <button onClick={handleUpdateMinStakeVote} disabled={isPending || isConfirming}>
+              Actualizar
+            </button>
+          </div>
 
-        <div className="admin-action">
-          <h4>Cambiar Mínimo de Stake para Proponer</h4>
-          <input
-            type="number"
-            placeholder="Nueva cantidad de tokens"
-            value={newMinStakePropose}
-            onChange={(e) => setNewMinStakePropose(e.target.value)}
-          />
-          <button onClick={handleUpdateMinStakePropose} disabled={isPending || isConfirming}>
-            Actualizar
-          </button>
-        </div>
-        <div className="admin-action">
-          <h4>Cambiar Tiempo de Bloqueo del Staking</h4>
-          <input
-            type="number"
-            placeholder="Segundos (ej: 300 = 5 minutos)"
-            value={newStakingLockTime}
-            onChange={(e) => setNewStakingLockTime(e.target.value)}
-          />
-          <button onClick={handleUpdateStakingLockTime} disabled={isPending || isConfirming}>
-            Actualizar Lock Time
-          </button>
-        </div>
+          <div className="admin-action">
+            <h4><FileEdit size={18} /> Min Stake Proponer</h4>
+            <input
+              type="number"
+              placeholder="Cantidad de tokens"
+              value={newMinStakePropose}
+              onChange={(e) => setNewMinStakePropose(e.target.value)}
+            />
+            <button onClick={handleUpdateMinStakePropose} disabled={isPending || isConfirming}>
+              Actualizar
+            </button>
+          </div>
 
-        <div className="admin-action">
-          <h4>Cambiar Duración de Propuestas</h4>
-          <input
-            type="number"
-            placeholder="Segundos (ej: 86400 = 1 día)"
-            value={newProposalDuration}
-            onChange={(e) => setNewProposalDuration(e.target.value)}
-          />
-          <button onClick={handleUpdateProposalDuration} disabled={isPending || isConfirming}>
-            Actualizar Duración
-          </button>
-        </div>
+          <div className="admin-action">
+            <h4><Lock size={18} /> Lock Time Staking</h4>
+            <input
+              type="number"
+              placeholder="Segundos (ej: 300)"
+              value={newStakingLockTime}
+              onChange={(e) => setNewStakingLockTime(e.target.value)}
+            />
+            <button onClick={handleUpdateStakingLockTime} disabled={isPending || isConfirming}>
+              Actualizar
+            </button>
+          </div>
 
-        <div className="admin-action">
-          <h4>Cambiar Tokens por Voting Power</h4>
-          <input
-            type="number"
-            placeholder="Cantidad de tokens = 1 VP"
-            value={newTokensPerVP}
-            onChange={(e) => setNewTokensPerVP(e.target.value)}
-          />
-          <button onClick={handleUpdateTokensPerVP} disabled={isPending || isConfirming}>
-            Actualizar Tokens/VP
-          </button>
+          <div className="admin-action">
+            <h4><Timer size={18} /> Duración Propuestas</h4>
+            <input
+              type="number"
+              placeholder="Segundos (ej: 86400)"
+              value={newProposalDuration}
+              onChange={(e) => setNewProposalDuration(e.target.value)}
+            />
+            <button onClick={handleUpdateProposalDuration} disabled={isPending || isConfirming}>
+              Actualizar
+            </button>
+          </div>
+
+          <div className="admin-action">
+            <h4><Zap size={18} /> Tokens por VP</h4>
+            <input
+              type="number"
+              placeholder="Tokens = 1 VP"
+              value={newTokensPerVP}
+              onChange={(e) => setNewTokensPerVP(e.target.value)}
+            />
+            <button onClick={handleUpdateTokensPerVP} disabled={isPending || isConfirming}>
+              Actualizar
+            </button>
+          </div>
+
+          <div className="admin-action danger">
+            <h4><AlertTriangle size={18} /> Transferir Ownership</h4>
+            <input
+              type="text"
+              placeholder="Nueva dirección (debe ser multisig)"
+              value={newOwnerAddress}
+              onChange={(e) => setNewOwnerAddress(e.target.value)}
+            />
+            <button
+              onClick={handleTransferOwnership}
+              disabled={isPending || isConfirming || !isAddress(newOwnerAddress)}
+            >
+              Transferir Ownership
+            </button>
+            <p><AlertTriangle size={14} /> Requiere 2/3 confirmaciones del Multisig Owner</p>
+          </div>
         </div>
       </section>
 
       {/* MENSAJES DE ESTADO */}
-      {isPending && <p className="status-message pending">⏳ Esperando confirmación en wallet...</p>}
-      {isConfirming && <p className="status-message confirming">⏳ Procesando transacción...</p>}
-      {isSuccess && <p className="status-message success">✅ Transacción exitosa!</p>}
+      {isPending && <p className="status-message pending"><Clock size={16} /> Esperando confirmación en wallet...</p>}
+      {isConfirming && <p className="status-message confirming"><Clock size={16} /> Procesando transacción...</p>}
+      {isSuccess && <p className="status-message success"><CheckCircle size={16} /> Transacción exitosa!</p>}
     </div>
   );
 }

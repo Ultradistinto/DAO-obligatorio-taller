@@ -7,7 +7,6 @@
   contract DAOToken is ERC20, Ownable {
 
       constructor() ERC20("DAO Governance Token", "DAOG") Ownable(msg.sender) {
-          // Inicialmente 0 tokens, como requiere el obligatorio
       }
 
       function mint(address to, uint256 amount) external onlyOwner {

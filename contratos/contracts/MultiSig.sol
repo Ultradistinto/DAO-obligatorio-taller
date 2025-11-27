@@ -9,15 +9,11 @@ contract SimpleMultiSig {
         bytes data;
     }
 
-    // Owner definition
     mapping(address => bool) _isOwner;
     address[] private _owners;
 
-    // Confimation requirements
     uint256 public _requiredConfirmations;
     
-    // Confirmations mapping
-    // Each transaction ID will have a list of confirmations - that's why we have a nested mapping.
     mapping(uint256 => mapping(address => bool)) private _isConfirmed;
     
     Transaction[] private _transactions;
@@ -136,7 +132,6 @@ contract SimpleMultiSig {
         return _owners;
     }
 
-    // Getter para obtener detalles de una transacción
     function getTransaction(uint256 txnId_)
         public
         view
