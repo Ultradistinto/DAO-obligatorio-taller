@@ -294,7 +294,7 @@ function AdminPanel() {
           </div>
 
           <div className="admin-action">
-            <h4>💵 Precio del Token</h4>
+            <h4><Coins size={18} /> Precio del Token</h4>
             <input
               type="number"
               step="0.0001"
@@ -386,7 +386,7 @@ function AdminPanel() {
             >
               Transferir Ownership
             </button>
-            <p>⚠️ Requiere 2/3 confirmaciones del Multisig Owner</p>
+            <p><AlertTriangle size={14} /> Requiere 2/3 confirmaciones del Multisig Owner</p>
           </div>
         </div>
       </section>

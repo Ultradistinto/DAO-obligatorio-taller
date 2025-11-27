@@ -100,7 +100,7 @@ function App() {
       if (daoTokenBalance < tokensToReceive) {
         const availableTokens = formatEther(daoTokenBalance);
         const requestedTokens = formatEther(tokensToReceive);
-        setError(`⚠️ No hay suficientes tokens en el DAO. Disponibles: ${availableTokens} DAOG, Solicitados: ${requestedTokens} DAOG`);
+        setError(`No hay suficientes tokens en el DAO. Disponibles: ${availableTokens} DAOG, Solicitados: ${requestedTokens} DAOG`);
         return;
       }
 
@@ -112,7 +112,7 @@ function App() {
       });
     } catch (err) {
       console.error('Error buying tokens:', err);
-      setError(`❌ Error: ${err.message || 'Error desconocido'}`);
+      setError(`Error: ${err.message || 'Error desconocido'}`);
     }
   };
 
@@ -151,7 +151,7 @@ function App() {
 
       if (!tokenBalance || tokenBalance < amount) {
         const available = tokenBalance ? formatEther(tokenBalance) : '0';
-        setError(`⚠️ No tienes suficientes tokens. Disponibles: ${available} DAOG, Necesitas: ${stakeAmountVote} DAOG`);
+        setError(`No tienes suficientes tokens. Disponibles: ${available} DAOG, Necesitas: ${stakeAmountVote} DAOG`);
         return;
       }
 
@@ -173,7 +173,7 @@ function App() {
       });
     } catch (err) {
       console.error('Error staking for voting:', err);
-      setError(`❌ Error: ${err.message || 'Error desconocido'}`);
+      setError(`Error: ${err.message || 'Error desconocido'}`);
     }
   };
 
@@ -185,7 +185,7 @@ function App() {
 
       if (!tokenBalance || tokenBalance < amount) {
         const available = tokenBalance ? formatEther(tokenBalance) : '0';
-        setError(`⚠️ No tienes suficientes tokens. Disponibles: ${available} DAOG, Necesitas: ${stakeAmountPropose} DAOG`);
+        setError(`No tienes suficientes tokens. Disponibles: ${available} DAOG, Necesitas: ${stakeAmountPropose} DAOG`);
         return;
       }
 
@@ -207,7 +207,7 @@ function App() {
       });
     } catch (err) {
       console.error('Error staking for proposing:', err);
-      setError(`❌ Error: ${err.message || 'Error desconocido'}`);
+      setError(`Error: ${err.message || 'Error desconocido'}`);
     }
   };
 
@@ -219,7 +219,7 @@ function App() {
 
       if (!stakeInfo || stakeInfo.amountForVoting < amount) {
         const staked = stakeInfo ? formatEther(stakeInfo.amountForVoting) : '0';
-        setError(`⚠️ No tienes suficiente stake. Stakeado: ${staked} DAOG, Intentas unstakear: ${unstakeAmountVote} DAOG`);
+        setError(`No tienes suficiente stake. Stakeado: ${staked} DAOG, Intentas unstakear: ${unstakeAmountVote} DAOG`);
         return;
       }
 
@@ -231,7 +231,7 @@ function App() {
       });
     } catch (err) {
       console.error('Error unstaking from voting:', err);
-      setError(`❌ Error: ${err.message || 'Error desconocido'}`);
+      setError(`Error: ${err.message || 'Error desconocido'}`);
     }
   };
 
@@ -243,7 +243,7 @@ function App() {
 
       if (!stakeInfo || stakeInfo.amountForProposing < amount) {
         const staked = stakeInfo ? formatEther(stakeInfo.amountForProposing) : '0';
-        setError(`⚠️ No tienes suficiente stake. Stakeado: ${staked} DAOG, Intentas unstakear: ${unstakeAmountPropose} DAOG`);
+        setError(`No tienes suficiente stake. Stakeado: ${staked} DAOG, Intentas unstakear: ${unstakeAmountPropose} DAOG`);
         return;
       }
 
@@ -255,7 +255,7 @@ function App() {
       });
     } catch (err) {
       console.error('Error unstaking from proposing:', err);
-      setError(`❌ Error: ${err.message || 'Error desconocido'}`);
+      setError(`Error: ${err.message || 'Error desconocido'}`);
     }
   };
 
@@ -268,7 +268,7 @@ function App() {
 
   const copyToClipboard = (text, label) => {
     navigator.clipboard.writeText(text);
-    alert(`✅ ${label} copiada al portapapeles!`);
+    alert(`${label} copiada al portapapeles!`);
   };
 
   return (
@@ -479,7 +479,7 @@ function App() {
                 } DAOG
               </p>
               {!isConnected && (
-                <p className="warning-message">⚠️ Necesitas conectar tu wallet para comprar tokens</p>
+                <p className="warning-message"><AlertTriangle size={16} /> Necesitas conectar tu wallet para comprar tokens</p>
               )}
               <button
                 onClick={handleBuyTokens}
@@ -487,7 +487,7 @@ function App() {
               >
                 {!isConnected ? 'Conecta tu wallet' : isPending ? 'Confirmando en wallet...' : isConfirming ? 'Comprando...' : 'Comprar Tokens'}
               </button>
-              {isSuccess && <p className="success">✅ ¡Tokens comprados exitosamente!</p>}
+              {isSuccess && <p className="success"><CheckCircle size={16} /> ¡Tokens comprados exitosamente!</p>}
             </section>
 
             <section className="staking-card">
@@ -514,7 +514,7 @@ function App() {
                       {isPending ? 'Confirmando...' : isConfirming ? 'Procesando...' : 'Stakear'}
                     </button>
                     {stakeAmountVote && allowance && allowance < parseEther(stakeAmountVote) && (
-                      <p className="info-message">ℹ️ Primera vez: necesitarás aprobar y luego stakear (2 transacciones)</p>
+                      <p className="info-message"><Info size={14} /> Primera vez: necesitarás aprobar y luego stakear (2 transacciones)</p>
                     )}
                   </div>
 
@@ -532,7 +532,7 @@ function App() {
                       {isPending ? 'Confirmando...' : isConfirming ? 'Procesando...' : 'Stakear'}
                     </button>
                     {stakeAmountPropose && allowance && allowance < parseEther(stakeAmountPropose) && (
-                      <p className="info-message">ℹ️ Primera vez: necesitarás aprobar y luego stakear (2 transacciones)</p>
+                      <p className="info-message"><Info size={14} /> Primera vez: necesitarás aprobar y luego stakear (2 transacciones)</p>
                     )}
                   </div>
 
