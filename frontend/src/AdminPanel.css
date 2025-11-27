@@ -276,4 +276,40 @@
   .button-group {
     grid-template-columns: 1fr;
   }
+  .admin-actions-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Grid de acciones */
+.admin-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.admin-action.danger {
+  border-left-color: #e74c3c;
+  background: rgba(231, 76, 60, 0.05);
+  grid-column: 1 / -1;
+}
+
+.admin-action.danger h4 {
+  color: #e74c3c;
+}
+
+.admin-action.danger button {
+  background: #e74c3c;
+  color: #fff;
+}
+
+.admin-action.danger button:hover:not(:disabled) {
+  background: #c0392b;
+}
+
+.admin-action.danger p {
+  font-size: 0.85em;
+  color: #888;
+  margin: 8px 0 0 0;
 }
