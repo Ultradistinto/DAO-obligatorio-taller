@@ -26,8 +26,7 @@ Los contratos ya están deployados y verificados en Sepolia testnet:
    - Configurar red Sepolia (activar "Show test networks")
 
 3. **Sepolia ETH** (para gas fees)
-   - Faucet 1: https://sepoliafaucet.com/
-   - Faucet 2: https://www.alchemy.com/faucets/ethereum-sepolia
+   - Faucet utilizada: https://sepolia-faucet.pk910.de/ (Todas las demas o daban muy poco o necesitaban transacciones en la mainnet)
 
 ---
 
@@ -145,8 +144,6 @@ Cada transacción necesita 2/3 confirmaciones para ejecutarse.
 
 - **Activar Pánico**: Pausa TODAS las operaciones de la DAO
 - **Restaurar Tranquilidad**: Reactiva las operaciones
-
-Útil en caso de vulnerabilidades o ataques.
 
 ---
 
