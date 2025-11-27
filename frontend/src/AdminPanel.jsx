@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseEther, formatEther, encodeFunctionData, isAddress } from 'viem';
+import { Settings, BarChart3, Building2, Coins, CheckCircle, XCircle, Clock, AlertTriangle, Timer, Users } from 'lucide-react';
 import { DAO_ADDRESS, TOKEN_ADDRESS, DAO_ABI, TOKEN_ABI, MULTISIG_OWNER_ADDRESS, MULTISIG_ABI } from './contracts/config';
 import './AdminPanel.css';
 
@@ -216,11 +217,13 @@ function AdminPanel() {
 
   return (
     <div className="admin-panel">
-      <h2>⚙️ Panel de Administración</h2>
+      <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <Settings size={28} /> Panel de Administración
+      </h2>
 
       {/* ESTADO DE LA DAO */}
       <section className="admin-section status-section">
-        <h3>📊 Estado de la DAO</h3>
+        <h3><BarChart3 size={20} /> Estado de la DAO</h3>
         <div className="status-grid">
           <div className="status-item">
             <span className="status-label">Estado:</span>
@@ -261,18 +264,18 @@ function AdminPanel() {
 
       {/* MULTISIG OWNER */}
       <section className="admin-section">
-        <h3>🏛️ Funciones del Owner (Multisig: {MULTISIG_OWNER_ADDRESS.slice(0, 6)}...)</h3>
+        <h3><Building2 size={20} /> Funciones del Owner (Multisig: {MULTISIG_OWNER_ADDRESS.slice(0, 6)}...)</h3>
         <p className="section-note">
           {isOwnerMultisig ? (
-            <span className="owner-badge">✅ Eres owner de este multisig - Puedes proponer transacciones</span>
+            <span className="owner-badge"><CheckCircle size={14} /> Eres owner de este multisig - Puedes proponer transacciones</span>
           ) : (
-            <span className="not-owner-badge">❌ No eres owner de este multisig</span>
+            <span className="not-owner-badge"><XCircle size={14} /> No eres owner de este multisig</span>
           )}
         </p>
 
         <div className="admin-actions-grid">
           <div className="admin-action">
-            <h4>💰 Mintear Tokens</h4>
+            <h4><Coins size={18} /> Mintear Tokens</h4>
             <input
               type="text"
               placeholder="Address destino"
@@ -305,7 +308,7 @@ function AdminPanel() {
           </div>
 
           <div className="admin-action">
-            <h4>🗳️ Min Stake Votar</h4>
+            <h4><Users size={18} /> Min Stake Votar</h4>
             <input
               type="number"
               placeholder="Cantidad de tokens"
@@ -344,7 +347,7 @@ function AdminPanel() {
           </div>
 
           <div className="admin-action">
-            <h4>⏱️ Duración Propuestas</h4>
+            <h4><Timer size={18} /> Duración Propuestas</h4>
             <input
               type="number"
               placeholder="Segundos (ej: 86400)"
@@ -370,7 +373,7 @@ function AdminPanel() {
           </div>
 
           <div className="admin-action danger">
-            <h4>⚠️ Transferir Ownership</h4>
+            <h4><AlertTriangle size={18} /> Transferir Ownership</h4>
             <input
               type="text"
               placeholder="Nueva dirección (debe ser multisig)"
@@ -389,9 +392,9 @@ function AdminPanel() {
       </section>
 
       {/* MENSAJES DE ESTADO */}
-      {isPending && <p className="status-message pending">⏳ Esperando confirmación en wallet...</p>}
-      {isConfirming && <p className="status-message confirming">⏳ Procesando transacción...</p>}
-      {isSuccess && <p className="status-message success">✅ Transacción exitosa!</p>}
+      {isPending && <p className="status-message pending"><Clock size={16} /> Esperando confirmación en wallet...</p>}
+      {isConfirming && <p className="status-message confirming"><Clock size={16} /> Procesando transacción...</p>}
+      {isSuccess && <p className="status-message success"><CheckCircle size={16} /> Transacción exitosa!</p>}
     </div>
   );
 }
