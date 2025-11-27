@@ -7,21 +7,16 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 contract DAO is Ownable, ReentrancyGuard {
 
-    // ============ STATE VARIABLES ============
-
     DAOToken public token;
     address public panicWallet;
     bool public isPaused;
 
-    // Parámetros configurables de la DAO
-    uint256 public tokenPrice;              // Precio en WEI por token
-    uint256 public tokensPerVotingPower;    // Cuántos tokens = 1 VP (ej: 1000 tokens = 1 VP)
-    uint256 public minStakeToVote;          // Mínimo tokens en staking para votar
-    uint256 public minStakeToPropose;       // Mínimo tokens en staking para proponer
-    uint256 public stakingLockTime;         // Tiempo de bloqueo del staking (en segundos)
-    uint256 public proposalDuration;        // Duración de propuestas activas (en segundos)
-
-    // ============ STRUCTS ============
+    uint256 public tokenPrice;             
+    uint256 public tokensPerVotingPower;
+    uint256 public minStakeToVote;
+    uint256 public minStakeToPropose;
+    uint256 public stakingLockTime;
+    uint256 public proposalDuration;
 
     enum ProposalStatus { ACTIVE, ACCEPTED, REJECTED }
     enum ProposalType { NORMAL, TREASURY }
@@ -47,17 +42,13 @@ contract DAO is Ownable, ReentrancyGuard {
         uint256 lockedUntilProposing;
     }
 
-    // ============ MAPPINGS ============
-
     mapping(address => StakeInfo) public stakes;
     mapping(uint256 => Proposal) public proposals;
     mapping(uint256 => mapping(address => bool)) public hasVoted;
-    mapping(uint256 => mapping(address => bool)) public voteChoice; // true = a favor, false = en contra
-    mapping(uint256 => address[]) private proposalVoters; // ← AGREGAR ESTA LÍNEA
+    mapping(uint256 => mapping(address => bool)) public voteChoice;
+    mapping(uint256 => address[]) private proposalVoters;
 
     uint256 public proposalCount;
-
-    // ============ EVENTS ============
 
     event PanicWalletSet(address indexed panicWallet);
     event PanicActivated(address indexed by);
@@ -71,8 +62,6 @@ contract DAO is Ownable, ReentrancyGuard {
     event ParametersUpdated(string paramName, uint256 newValue);
     event TreasuryTransferExecuted(uint256 indexed proposalId, address indexed target, uint256 amount);
 
-    // ============ ERRORS ============
-
     error DAOPaused();
     error NoPanicWalletSet();
     error NotPanicWallet();
@@ -85,8 +74,6 @@ contract DAO is Ownable, ReentrancyGuard {
     error ProposalNotActive();
     error ProposalStillActive();
     error InvalidProposal();
-
-    // ============ MODIFIERS ============
 
     modifier whenNotPaused() {
         if (isPaused) revert DAOPaused();
@@ -102,8 +89,6 @@ contract DAO is Ownable, ReentrancyGuard {
         if (panicWallet == address(0)) revert NoPanicWalletSet();
         _;
     }
-
-    // ============ CONSTRUCTOR ============
 
     constructor(
         address tokenAddress,
@@ -172,7 +157,6 @@ contract DAO is Ownable, ReentrancyGuard {
     function stakeForProposing(uint256 amount) external whenNotPaused panicWalletMustBeSet {
         if (amount == 0) revert InvalidAmount();
 
-        // Transferir tokens del usuario al contrato
         require(token.transferFrom(msg.sender, address(this), amount), "Transfer failed");
 
         StakeInfo storage userStake = stakes[msg.sender];
@@ -190,7 +174,6 @@ contract DAO is Ownable, ReentrancyGuard {
 
         userStake.amountForVoting -= amount;
 
-        // Devolver tokens al usuario
         require(token.transfer(msg.sender, amount), "Transfer failed");
 
         emit Unstaked(msg.sender, amount, true);
@@ -204,7 +187,6 @@ contract DAO is Ownable, ReentrancyGuard {
 
         userStake.amountForProposing -= amount;
 
-        // Devolver tokens al usuario
         require(token.transfer(msg.sender, amount), "Transfer failed");
 
         emit Unstaked(msg.sender, amount, false);
@@ -258,13 +240,10 @@ contract DAO is Ownable, ReentrancyGuard {
         emit ParametersUpdated("tokensMinted", amount);
     }
 
-    // ============ SISTEMA DE PROPUESTAS ============
-
     function createProposal(
         string memory title,
         string memory description
     ) external whenNotPaused returns (uint256) {
-        // Verificar que el usuario tiene suficiente stake para proponer
         if (stakes[msg.sender].amountForProposing < minStakeToPropose) {
             revert InsufficientStake();
         }
@@ -282,7 +261,7 @@ contract DAO is Ownable, ReentrancyGuard {
         newProposal.votesAgainst = 0;
         newProposal.status = ProposalStatus.ACTIVE;
         newProposal.proposalType = ProposalType.NORMAL;
-        newProposal.treasuryTarget = address(0);         // ← AGREGAR
+        newProposal.treasuryTarget = address(0);
         newProposal.treasuryAmount = 0;
 
         emit ProposalCreated(proposalId, msg.sender, title);
@@ -352,12 +331,10 @@ contract DAO is Ownable, ReentrancyGuard {
     function finalizeProposal(uint256 proposalId) external {
         Proposal storage proposal = proposals[proposalId];
 
-        // Validaciones
         if (proposal.createdAt == 0) revert InvalidProposal();
         if (proposal.status != ProposalStatus.ACTIVE) revert ProposalNotActive();
         if (block.timestamp <= proposal.deadline) revert ProposalStillActive();
 
-        // Determinar resultado basado en votos
         if (proposal.votesFor > proposal.votesAgainst) {
             proposal.status = ProposalStatus.ACCEPTED;
 
@@ -374,8 +351,6 @@ contract DAO is Ownable, ReentrancyGuard {
         emit ProposalExecuted(proposalId, proposal.status);
     }
 
-    // ============ GETTERS PARA PROPUESTAS ============
-
     function getProposal(uint256 proposalId) external view returns (
         string memory title,
         string memory description,
@@ -385,8 +360,8 @@ contract DAO is Ownable, ReentrancyGuard {
         uint256 votesFor,
         uint256 votesAgainst,
         ProposalStatus status,
-        ProposalType proposalType,      // ← AGREGAR
-        address treasuryTarget,          // ← AGREGAR
+        ProposalType proposalType,
+        address treasuryTarget,
         uint256 treasuryAmount 
     ) {
         Proposal storage proposal = proposals[proposalId];
@@ -412,14 +387,12 @@ contract DAO is Ownable, ReentrancyGuard {
     function getActiveProposals() external view returns (uint256[] memory) {
         uint256 activeCount = 0;
 
-        // Contar propuestas activas
         for (uint256 i = 0; i < proposalCount; i++) {
             if (proposals[i].status == ProposalStatus.ACTIVE && block.timestamp <= proposals[i].deadline) {
                 activeCount++;
             }
         }
 
-        // Crear array con IDs de propuestas activas
         uint256[] memory activeIds = new uint256[](activeCount);
         uint256 index = 0;
 
@@ -445,7 +418,5 @@ contract DAO is Ownable, ReentrancyGuard {
         return address(this).balance;
     }
 
-
-    // Para recibir ETH (para el treasury)
     receive() external payable {}
 }

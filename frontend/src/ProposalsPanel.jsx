@@ -60,7 +60,6 @@ function ProposalsPanel() {
   const canPropose = stakeInfo && minStakeToPropose && stakeInfo.amountForProposing >= minStakeToPropose;
   const canVote = stakeInfo && minStakeToVote && stakeInfo.amountForVoting >= minStakeToVote;
 
-  // Limpiar form después de transacción exitosa
   useEffect(() => {
     if (isSuccess) {
       setTitle('');
@@ -242,7 +241,6 @@ function ProposalsPanel() {
 function ProposalCard({ proposalId, userAddress, canVote, filterStatus, currentTime, isPending, isConfirming, expandedProposal, setExpandedProposal }) {
   const { writeContract } = useWriteContract();
 
-  // Leer datos de la propuesta
   const { data: proposalData, refetch: refetchProposal } = useReadContract({
     address: DAO_ADDRESS,
     abi: DAO_ABI,
@@ -250,7 +248,6 @@ function ProposalCard({ proposalId, userAddress, canVote, filterStatus, currentT
     args: [BigInt(proposalId)],
   });
 
-  // Leer si el usuario ya votó
   const { data: hasVoted } = useReadContract({
     address: DAO_ADDRESS,
     abi: DAO_ABI,
@@ -271,10 +268,8 @@ function ProposalCard({ proposalId, userAddress, canVote, filterStatus, currentT
 
   const [title, description, proposer, createdAt, deadline, votesFor, votesAgainst, status] = proposalData;
 
-  // Status: 0 = ACTIVE, 1 = ACCEPTED, 2 = REJECTED
   const statusText = status === 0 ? 'ACTIVE' : status === 1 ? 'ACCEPTED' : 'REJECTED';
 
-  // Filtrar por status
   if (filterStatus === 'active' && status !== 0) return null;
   if (filterStatus === 'accepted' && status !== 1) return null;
   if (filterStatus === 'rejected' && status !== 2) return null;

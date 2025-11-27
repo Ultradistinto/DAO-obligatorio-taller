@@ -15,7 +15,6 @@ function App() {
   const [ethAmount, setEthAmount] = useState('0.01');
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  // Estados para staking
   const [stakeAmountVote, setStakeAmountVote] = useState('');
   const [stakeAmountPropose, setStakeAmountPropose] = useState('');
   const [unstakeAmountVote, setUnstakeAmountVote] = useState('');
@@ -23,7 +22,6 @@ function App() {
   const [currentTime, setCurrentTime] = useState(Math.floor(Date.now() / 1000));
   const [error, setError] = useState('');
 
-  // Leer balance de tokens del usuario
   const { data: tokenBalance, refetch: refetchTokenBalance } = useReadContract({
     address: TOKEN_ADDRESS,
     abi: TOKEN_ABI,
@@ -34,7 +32,6 @@ function App() {
     }
   });
 
-  // Leer staking info del usuario
   const { data: stakeInfo, refetch: refetchStakeInfo } = useReadContract({
     address: DAO_ADDRESS,
     abi: DAO_ABI,
@@ -45,14 +42,12 @@ function App() {
     }
   });
 
-  // Leer precio del token
   const { data: tokenPrice } = useReadContract({
     address: DAO_ADDRESS,
     abi: DAO_ABI,
     functionName: 'tokenPrice',
   });
 
-  // Leer voting power
   const { data: votingPower, refetch: refetchVotingPower } = useReadContract({
     address: DAO_ADDRESS,
     abi: DAO_ABI,
@@ -61,7 +56,6 @@ function App() {
     query: { enabled: !!address }
   });
 
-  // Leer balance de tokens del DAO
   const { data: daoTokenBalance, refetch: refetchDaoTokenBalance } = useReadContract({
     address: TOKEN_ADDRESS,
     abi: TOKEN_ABI,
@@ -75,8 +69,6 @@ function App() {
     functionName: 'getTreasuryBalance',
   });
 
-
-  // Timer para actualizar el countdown cada segundo
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(Math.floor(Date.now() / 1000));
@@ -84,7 +76,6 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
-  // Calcular si está bloqueado y cuánto tiempo falta
   const votingLockedUntil = stakeInfo?.lockedUntilVoting ? Number(stakeInfo.lockedUntilVoting) : 0;
   const proposingLockedUntil = stakeInfo?.lockedUntilProposing ? Number(stakeInfo.lockedUntilProposing) : 0;
   const isVotingLocked = votingLockedUntil > currentTime;
@@ -92,7 +83,6 @@ function App() {
   const votingTimeLeft = isVotingLocked ? votingLockedUntil - currentTime : 0;
   const proposingTimeLeft = isProposingLocked ? proposingLockedUntil - currentTime : 0;
 
-  // Comprar tokens
   const { data: hash, writeContract, isPending } = useWriteContract();
 
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
@@ -103,11 +93,9 @@ function App() {
     try {
       setError('');
 
-      // Validación: Calcular cuántos tokens se van a recibir
       const ethValue = parseEther(ethAmount);
       const tokensToReceive = (ethValue * parseEther('1')) / tokenPrice;
 
-      // Validación: Verificar que el DAO tenga suficientes tokens
       if (daoTokenBalance < tokensToReceive) {
         const availableTokens = formatEther(daoTokenBalance);
         const requestedTokens = formatEther(tokensToReceive);
@@ -127,7 +115,6 @@ function App() {
     }
   };
 
-  // Leer allowance actual
   const { data: allowance, refetch: refetchAllowance } = useReadContract({
     address: TOKEN_ADDRESS,
     abi: TOKEN_ABI,
@@ -136,20 +123,16 @@ function App() {
     query: { enabled: !!address }
   });
 
-  // Limpiar inputs y refrescar datos después de transacción exitosa
   useEffect(() => {
     if (isSuccess) {
-      // Limpiar error
       setError('');
 
-      // Limpiar todos los inputs
       setEthAmount('0.01');
       setStakeAmountVote('');
       setStakeAmountPropose('');
       setUnstakeAmountVote('');
       setUnstakeAmountPropose('');
 
-      // Refrescar todos los datos
       refetchTokenBalance();
       refetchStakeInfo();
       refetchVotingPower();
@@ -159,33 +142,28 @@ function App() {
     }
   }, [isSuccess]);
 
-  // Funciones de staking con auto-approval
   const handleStakeForVoting = async () => {
     try {
       setError('');
       if (!stakeAmountVote) return;
       const amount = parseEther(stakeAmountVote);
 
-      // Validación: Verificar que el usuario tenga suficientes tokens
       if (!tokenBalance || tokenBalance < amount) {
         const available = tokenBalance ? formatEther(tokenBalance) : '0';
         setError(`⚠️ No tienes suficientes tokens. Disponibles: ${available} DAOG, Necesitas: ${stakeAmountVote} DAOG`);
         return;
       }
 
-      // Si no hay suficiente allowance, aprobar primero
       if (!allowance || allowance < amount) {
         writeContract({
           address: TOKEN_ADDRESS,
           abi: TOKEN_ABI,
           functionName: 'approve',
-          args: [DAO_ADDRESS, BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')], // Max uint256
+          args: [DAO_ADDRESS, BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')],
         });
-        // Nota: El usuario tendrá que hacer clic en stakear nuevamente después del approve
         return;
       }
 
-      // Si ya hay allowance, stakear directamente
       writeContract({
         address: DAO_ADDRESS,
         abi: DAO_ABI,
@@ -204,7 +182,6 @@ function App() {
       if (!stakeAmountPropose) return;
       const amount = parseEther(stakeAmountPropose);
 
-      // Validación: Verificar que el usuario tenga suficientes tokens
       if (!tokenBalance || tokenBalance < amount) {
         const available = tokenBalance ? formatEther(tokenBalance) : '0';
         setError(`⚠️ No tienes suficientes tokens. Disponibles: ${available} DAOG, Necesitas: ${stakeAmountPropose} DAOG`);
@@ -239,7 +216,6 @@ function App() {
       if (!unstakeAmountVote) return;
       const amount = parseEther(unstakeAmountVote);
 
-      // Validación: Verificar que tenga suficiente stakeado
       if (!stakeInfo || stakeInfo.amountForVoting < amount) {
         const staked = stakeInfo ? formatEther(stakeInfo.amountForVoting) : '0';
         setError(`⚠️ No tienes suficiente stake. Stakeado: ${staked} DAOG, Intentas unstakear: ${unstakeAmountVote} DAOG`);
@@ -264,7 +240,6 @@ function App() {
       if (!unstakeAmountPropose) return;
       const amount = parseEther(unstakeAmountPropose);
 
-      // Validación: Verificar que tenga suficiente stakeado
       if (!stakeInfo || stakeInfo.amountForProposing < amount) {
         const staked = stakeInfo ? formatEther(stakeInfo.amountForProposing) : '0';
         setError(`⚠️ No tienes suficiente stake. Stakeado: ${staked} DAOG, Intentas unstakear: ${unstakeAmountPropose} DAOG`);
@@ -283,7 +258,6 @@ function App() {
     }
   };
 
-  // Helper para formatear tiempo restante
   const formatTimeLeft = (seconds) => {
     if (seconds <= 0) return '';
     const minutes = Math.floor(seconds / 60);

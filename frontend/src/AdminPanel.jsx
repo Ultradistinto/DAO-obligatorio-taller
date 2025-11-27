@@ -9,7 +9,6 @@ function AdminPanel() {
   const { data: hash, writeContract, isPending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
 
-  // Estados para inputs
   const [mintTo, setMintTo] = useState('');
   const [mintAmount, setMintAmount] = useState('');
   const [newOwnerAddress, setNewOwnerAddress] = useState('');
@@ -20,7 +19,6 @@ function AdminPanel() {
   const [newProposalDuration, setNewProposalDuration] = useState('');
   const [newTokensPerVP, setNewTokensPerVP] = useState('');
 
-  // Leer parámetros actuales de la DAO
   const { data: tokenPrice } = useReadContract({
     address: DAO_ADDRESS,
     abi: DAO_ABI,
@@ -70,19 +68,15 @@ function AdminPanel() {
     args: [DAO_ADDRESS],
   });
 
-  // Leer owners del multisig Owner
   const { data: multisigOwnerOwners } = useReadContract({
     address: MULTISIG_OWNER_ADDRESS,
     abi: MULTISIG_ABI,
     functionName: 'owners',
   });
 
-  // Verificar si el usuario es owner del multisig owner
   const isOwnerMultisig = multisigOwnerOwners?.some(owner =>
     owner.toLowerCase() === address?.toLowerCase()
   );
-
-  // ============ FUNCIONES DE MULTISIG OWNER ============
 
   const handleMintTokens = async () => {
     if (!mintTo || !mintAmount) return;

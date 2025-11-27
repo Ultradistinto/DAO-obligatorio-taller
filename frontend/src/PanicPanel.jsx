@@ -9,7 +9,6 @@ function PanicPanel() {
   const { data: hash, writeContract, isPending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
 
-  // Leer datos del multisig panic
   const { data: panicOwners } = useReadContract({
     address: MULTISIG_PANIC_ADDRESS,
     abi: MULTISIG_ABI,
@@ -28,7 +27,6 @@ function PanicPanel() {
     functionName: 'transactionCount',
   });
 
-  // Leer estado actual de la DAO
   const { data: isPaused, refetch: refetchPaused } = useReadContract({
     address: DAO_ADDRESS,
     abi: DAO_ABI,
@@ -39,7 +37,6 @@ function PanicPanel() {
     owner.toLowerCase() === address?.toLowerCase()
   );
 
-  // Función para crear transacción de pánico
   const handlePanic = () => {
     const panicData = encodeFunctionData({
       abi: DAO_ABI,
@@ -55,7 +52,6 @@ function PanicPanel() {
     });
   };
 
-  // Función para crear transacción de tranquilidad
   const handleTranquilidad = () => {
     const tranquilidadData = encodeFunctionData({
       abi: DAO_ABI,
@@ -166,7 +162,6 @@ function PanicPanel() {
 function PanicTransactionCard({ txId, userAddress, isOwner, requiredConfirmations, isPending, isConfirming }) {
   const { writeContract } = useWriteContract();
 
-  // Leer confirmaciones
   const { data: confirmationCount } = useReadContract({
     address: MULTISIG_PANIC_ADDRESS,
     abi: MULTISIG_ABI,
@@ -174,7 +169,6 @@ function PanicTransactionCard({ txId, userAddress, isOwner, requiredConfirmation
     args: [BigInt(txId)],
   });
 
-  // Leer detalles de la transacción
   const { data: txDetails } = useReadContract({
     address: MULTISIG_PANIC_ADDRESS,
     abi: MULTISIG_ABI,
@@ -186,7 +180,6 @@ function PanicTransactionCard({ txId, userAddress, isOwner, requiredConfirmation
   const required = requiredConfirmations ? Number(requiredConfirmations) : 0;
   const isExecuted = txDetails ? txDetails[3] : false;
 
-  // Decodificar la función
   let functionName = 'Unknown';
   if (txDetails && txDetails[2]) {
     try {

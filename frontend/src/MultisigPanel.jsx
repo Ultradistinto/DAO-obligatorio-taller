@@ -14,21 +14,18 @@ function MultisigPanel() {
 
   const currentMultisigAddress = activeMultisig === 'owner' ? MULTISIG_OWNER_ADDRESS : MULTISIG_PANIC_ADDRESS;
 
-  // Leer cantidad total de transacciones
   const { data: txCount, refetch: refetchTxCount } = useReadContract({
     address: currentMultisigAddress,
     abi: MULTISIG_ABI,
     functionName: 'transactionCount',
   });
 
-  // Leer owners del multisig
   const { data: multisigOwners } = useReadContract({
     address: currentMultisigAddress,
     abi: MULTISIG_ABI,
     functionName: 'owners',
   });
 
-  // Leer confirmaciones requeridas
   const { data: requiredConfirmations } = useReadContract({
     address: currentMultisigAddress,
     abi: MULTISIG_ABI,
@@ -39,7 +36,6 @@ function MultisigPanel() {
     owner.toLowerCase() === address?.toLowerCase()
   );
 
-  // Función para confirmar una transacción
   const handleConfirmTransaction = (txId) => {
     writeContract({
       address: currentMultisigAddress,
@@ -49,7 +45,6 @@ function MultisigPanel() {
     });
   };
 
-  // Generar lista de IDs de transacciones
   const transactionIds = txCount ? Array.from({ length: Number(txCount) }, (_, i) => i) : [];
 
   return (
@@ -140,9 +135,7 @@ function MultisigPanel() {
   );
 }
 
-// Componente para cada transacción
 function TransactionCard({ txId, multisigAddress, userAddress, isOwner, onConfirm, requiredConfirmations, isPending, isConfirming }) {
-  // Leer confirmaciones de esta transacción
   const { data: confirmationCount } = useReadContract({
     address: multisigAddress,
     abi: MULTISIG_ABI,
@@ -150,7 +143,6 @@ function TransactionCard({ txId, multisigAddress, userAddress, isOwner, onConfir
     args: [BigInt(txId)],
   });
 
-  // Leer detalles de la transacción
   const { data: txDetails } = useReadContract({
     address: multisigAddress,
     abi: MULTISIG_ABI,
@@ -160,13 +152,12 @@ function TransactionCard({ txId, multisigAddress, userAddress, isOwner, onConfir
 
   const confirmations = confirmationCount ? Number(confirmationCount) : 0;
   const required = requiredConfirmations ? Number(requiredConfirmations) : 0;
-  const isExecuted = txDetails ? txDetails[3] : false; // executed flag
+  const isExecuted = txDetails ? txDetails[3] : false;
 
-  // Decodificar la función que se está llamando
   let functionName = 'Unknown';
   let functionArgs = [];
 
-  if (txDetails && txDetails[2]) { // txDetails[2] es el data
+  if (txDetails && txDetails[2]) {
     try {
       const decoded = decodeFunctionData({
         abi: DAO_ABI,
