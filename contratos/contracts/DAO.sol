@@ -24,6 +24,7 @@ contract DAO is Ownable, ReentrancyGuard {
     // ============ STRUCTS ============
 
     enum ProposalStatus { ACTIVE, ACCEPTED, REJECTED }
+    enum ProposalType { NORMAL, TREASURY }
 
     struct Proposal {
         string title;
@@ -34,6 +35,9 @@ contract DAO is Ownable, ReentrancyGuard {
         uint256 votesFor;
         uint256 votesAgainst;
         ProposalStatus status;
+        ProposalType proposalType;
+        address treasuryTarget;
+        uint256 treasuryAmount; 
     }
 
     struct StakeInfo {
@@ -65,6 +69,7 @@ contract DAO is Ownable, ReentrancyGuard {
     event Voted(uint256 indexed proposalId, address indexed voter, bool inFavor, uint256 votingPower);
     event ProposalExecuted(uint256 indexed proposalId, ProposalStatus status);
     event ParametersUpdated(string paramName, uint256 newValue);
+    event TreasuryTransferExecuted(uint256 indexed proposalId, address indexed target, uint256 amount);
 
     // ============ ERRORS ============
 
@@ -261,6 +266,43 @@ contract DAO is Ownable, ReentrancyGuard {
         newProposal.votesFor = 0;
         newProposal.votesAgainst = 0;
         newProposal.status = ProposalStatus.ACTIVE;
+        newProposal.proposalType = ProposalType.NORMAL;
+        newProposal.treasuryTarget = address(0);         // ← AGREGAR
+        newProposal.treasuryAmount = 0;
+
+        emit ProposalCreated(proposalId, msg.sender, title);
+
+        return proposalId;
+    }
+
+    function createTreasuryProposal(
+        string memory title,
+        string memory description,
+        address target,
+        uint256 amount
+    ) external whenNotPaused returns (uint256) {
+        if (stakes[msg.sender].amountForProposing < minStakeToPropose) {
+            revert InsufficientStake();
+        }
+
+        require(target != address(0), "Invalid target address");
+        require(amount > 0, "Amount must be greater than 0");
+
+        uint256 proposalId = proposalCount;
+        proposalCount++;
+
+        Proposal storage newProposal = proposals[proposalId];
+        newProposal.title = title;
+        newProposal.description = description;
+        newProposal.proposer = msg.sender;
+        newProposal.createdAt = block.timestamp;
+        newProposal.deadline = block.timestamp + proposalDuration;
+        newProposal.votesFor = 0;
+        newProposal.votesAgainst = 0;
+        newProposal.status = ProposalStatus.ACTIVE;
+        newProposal.proposalType = ProposalType.TREASURY;
+        newProposal.treasuryTarget = target;
+        newProposal.treasuryAmount = amount;
 
         emit ProposalCreated(proposalId, msg.sender, title);
 
@@ -303,6 +345,13 @@ contract DAO is Ownable, ReentrancyGuard {
         // Determinar resultado basado en votos
         if (proposal.votesFor > proposal.votesAgainst) {
             proposal.status = ProposalStatus.ACCEPTED;
+
+            if (proposal.proposalType == ProposalType.TREASURY) {
+                require(address(this).balance >= proposal.treasuryAmount, "Insufficient treasury balance");
+                (bool success, ) = proposal.treasuryTarget.call{value: proposal.treasuryAmount}("");
+                require(success, "Treasury transfer failed");
+                emit TreasuryTransferExecuted(proposalId, proposal.treasuryTarget, proposal.treasuryAmount);
+            }
         } else {
             proposal.status = ProposalStatus.REJECTED;
         }
@@ -320,7 +369,10 @@ contract DAO is Ownable, ReentrancyGuard {
         uint256 deadline,
         uint256 votesFor,
         uint256 votesAgainst,
-        ProposalStatus status
+        ProposalStatus status,
+        ProposalType proposalType,      // ← AGREGAR
+        address treasuryTarget,          // ← AGREGAR
+        uint256 treasuryAmount 
     ) {
         Proposal storage proposal = proposals[proposalId];
         return (
@@ -331,7 +383,10 @@ contract DAO is Ownable, ReentrancyGuard {
             proposal.deadline,
             proposal.votesFor,
             proposal.votesAgainst,
-            proposal.status
+            proposal.status,
+            proposal.proposalType,
+            proposal.treasuryTarget,
+            proposal.treasuryAmount
         );
     }
 
@@ -370,6 +425,11 @@ contract DAO is Ownable, ReentrancyGuard {
     function getVoterChoice(uint256 proposalId, address voter) external view returns (bool) {
         return voteChoice[proposalId][voter];
     }
+
+    function getTreasuryBalance() external view returns (uint256) {
+        return address(this).balance;
+    }
+
 
     // Para recibir ETH (para el treasury)
     receive() external payable {}

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { parseEther, formatEther } from 'viem';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { Vote, ThumbsUp, ThumbsDown, Clock, CheckCircle, XCircle, Flag } from 'lucide-react';
 import { DAO_ADDRESS, DAO_ABI } from './contracts/config';
@@ -14,6 +15,10 @@ function ProposalsPanel() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [expandedProposal, setExpandedProposal] = useState(null);
   const [currentTime, setCurrentTime] = useState(Math.floor(Date.now() / 1000));
+  const [isTreasuryProposal, setIsTreasuryProposal] = useState(false);
+  const [treasuryTarget, setTreasuryTarget] = useState('');
+  const [treasuryAmount, setTreasuryAmount] = useState('');
+
 
   // Timer para actualizar countdown
   useEffect(() => {
@@ -60,19 +65,34 @@ function ProposalsPanel() {
     if (isSuccess) {
       setTitle('');
       setDescription('');
+      setIsTreasuryProposal(false);
+      setTreasuryTarget('');
+      setTreasuryAmount(''); 
       refetchProposalCount();
     }
   }, [isSuccess]);
 
   const handleCreateProposal = () => {
     if (!title || !description) return;
-    writeContract({
-      address: DAO_ADDRESS,
-      abi: DAO_ABI,
-      functionName: 'createProposal',
-      args: [title, description],
-    });
+
+    if (isTreasuryProposal) {
+      if (!treasuryTarget || !treasuryAmount) return;
+      writeContract({
+        address: DAO_ADDRESS,
+        abi: DAO_ABI,
+        functionName: 'createTreasuryProposal',
+        args: [title, description, treasuryTarget, parseEther(treasuryAmount)],
+      });
+    } else {
+      writeContract({
+        address: DAO_ADDRESS,
+        abi: DAO_ABI,
+        functionName: 'createProposal',
+        args: [title, description],
+      });
+    }
   };
+
 
   const proposalIds = proposalCount ? Array.from({ length: Number(proposalCount) }, (_, i) => i) : [];
 
@@ -105,6 +125,40 @@ function ProposalsPanel() {
                   rows={5}
                 />
               </div>
+              <div className="form-group">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={isTreasuryProposal}
+                      onChange={(e) => setIsTreasuryProposal(e.target.checked)}
+                    />
+                    💰 Propuesta de Treasury (transferir ETH del balance de la DAO)
+                  </label>
+                </div>
+
+                {isTreasuryProposal && (
+                  <>
+                    <div className="form-group">
+                      <label>Address destino:</label>
+                      <input
+                        type="text"
+                        placeholder="0x..."
+                        value={treasuryTarget}
+                        onChange={(e) => setTreasuryTarget(e.target.value)}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Cantidad (ETH):</label>
+                      <input
+                        type="number"
+                        step="0.001"
+                        placeholder="0.1"
+                        value={treasuryAmount}
+                        onChange={(e) => setTreasuryAmount(e.target.value)}
+                      />
+                    </div>
+                  </>
+                )}
               <button
                 className="create-btn"
                 onClick={handleCreateProposal}

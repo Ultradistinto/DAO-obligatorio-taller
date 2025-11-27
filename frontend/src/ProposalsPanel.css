@@ -532,3 +532,43 @@
   min-width: 60px;
   text-align: right;
 }
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.treasury-info {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #fff9e6 0%, #ffe8b3 100%);
+  border-left: 4px solid #ffb300;
+  border-radius: 8px;
+}
+
+.treasury-badge {
+  font-weight: 700;
+  color: #ff8f00;
+  font-size: 1rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.treasury-detail {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  color: #5d4037;
+}
+
+.treasury-detail strong {
+  color: #3e2723;
+}
+

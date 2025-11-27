@@ -69,6 +69,13 @@ function App() {
     args: [DAO_ADDRESS],
   });
 
+  const { data: treasuryBalance, refetch: refetchTreasuryBalance } = useReadContract({
+    address: DAO_ADDRESS,
+    abi: DAO_ABI,
+    functionName: 'getTreasuryBalance',
+  });
+
+
   // Timer para actualizar el countdown cada segundo
   useEffect(() => {
     const interval = setInterval(() => {
@@ -148,6 +155,7 @@ function App() {
       refetchVotingPower();
       refetchAllowance();
       refetchDaoTokenBalance();
+      refetchTreasuryBalance();
     }
   }, [isSuccess]);
 
@@ -345,6 +353,19 @@ function App() {
                       <p>Staked para proponer: {formatEther(stakeInfo.amountForProposing)} DAOG</p>
                     </>
                   )}
+                  <div style={{
+                    marginTop: '1rem',
+                    paddingTop: '1rem',
+                    borderTop: '2px solid #e0e0e0'
+                  }}>
+                    <p style={{
+                      fontSize: '1.1rem',
+                      fontWeight: 'bold',
+                      color: '#ff8f00'
+                    }}>
+                      💰 Treasury del DAO: {treasuryBalance ? formatEther(treasuryBalance) : '0'} ETH
+                    </p>
+                  </div>
                 </>
               ) : (
                 <p className="connect-message">👆 Conecta tu wallet para ver tu balance</p>
