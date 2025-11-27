@@ -298,3 +298,95 @@
       bottom: 16px;
     }
   }
+
+  /* Contract Addresses Section */
+  .contract-addresses {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .contract-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #242424;
+    border-radius: 6px;
+    border: 1px solid #333;
+    transition: border-color 0.2s;
+  }
+
+  .contract-item:hover {
+    border-color: #646cff;
+  }
+
+  .contract-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .contract-label {
+    font-weight: 600;
+    color: #646cff;
+    margin-bottom: 0.3rem;
+    display: block;
+  }
+
+  .contract-address {
+    font-size: 0.85rem;
+    color: #888;
+    font-family: 'Courier New', monospace;
+    word-break: break-all;
+    line-height: 1.4;
+  }
+
+  .contract-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: 1rem;
+    flex-shrink: 0;
+  }
+
+  .icon-button {
+    padding: 0.6rem;
+    cursor: pointer;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background: #1a1a1a;
+    color: #888;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .icon-button:hover {
+    background: #646cff;
+    color: white;
+    border-color: #646cff;
+  }
+
+  .icon-button:active {
+    transform: scale(0.95);
+  }
+
+  .etherscan-link {
+    padding: 0.6rem;
+    cursor: pointer;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background: #1a1a1a;
+    color: #888;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+  }
+
+  .etherscan-link:hover {
+    background: #535bf2;
+    color: white;
+    border-color: #535bf2;
+  }

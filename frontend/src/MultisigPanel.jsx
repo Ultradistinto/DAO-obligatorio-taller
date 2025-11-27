@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { decodeFunctionData, formatEther } from 'viem';
+import { Building2, AlertTriangle, CheckCircle, Clock, ChevronDown } from 'lucide-react';
 import { MULTISIG_OWNER_ADDRESS, MULTISIG_PANIC_ADDRESS, MULTISIG_ABI, DAO_ABI, DAO_ADDRESS } from './contracts/config';
 import './MultisigPanel.css';
 
@@ -36,6 +37,13 @@ function MultisigPanel() {
     owner.toLowerCase() === address?.toLowerCase()
   );
 
+  // Auto-refresh cuando la transacción es exitosa
+  useEffect(() => {
+    if (isSuccess) {
+      refetchTxCount();
+    }
+  }, [isSuccess, refetchTxCount]);
+
   const handleConfirmTransaction = (txId) => {
     writeContract({
       address: currentMultisigAddress,
@@ -49,7 +57,9 @@ function MultisigPanel() {
 
   return (
     <div className="multisig-panel">
-      <h2>📋 Transacciones del Multisig</h2>
+      <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <Building2 size={28} /> Transacciones del Multisig
+      </h2>
 
       {/* Selector de Multisig */}
       <div className="multisig-selector">
@@ -57,13 +67,13 @@ function MultisigPanel() {
           className={activeMultisig === 'owner' ? 'selector-btn active' : 'selector-btn'}
           onClick={() => setActiveMultisig('owner')}
         >
-          🏛️ Multisig Owner
+          <Building2 size={18} /> Multisig Owner
         </button>
         <button
           className={activeMultisig === 'panic' ? 'selector-btn active' : 'selector-btn'}
           onClick={() => setActiveMultisig('panic')}
         >
-          🚨 Multisig Panic
+          <AlertTriangle size={18} /> Multisig Panic
         </button>
       </div>
 
@@ -76,9 +86,9 @@ function MultisigPanel() {
         <p>
           <strong>Estado:</strong>{' '}
           {isOwner ? (
-            <span className="owner-badge-small">✅ Eres owner</span>
+            <span className="owner-badge-small"><CheckCircle size={14} /> Eres owner</span>
           ) : (
-            <span className="not-owner-badge-small">❌ No eres owner</span>
+            <span className="not-owner-badge-small"><AlertTriangle size={14} /> No eres owner</span>
           )}
         </p>
       </div>
@@ -128,9 +138,9 @@ function MultisigPanel() {
       </div>
 
       {/* Mensajes de estado */}
-      {isSuccess && <p className="status-message success">✅ Transacción confirmada exitosamente!</p>}
-      {isPending && <p className="status-message pending">⏳ Esperando confirmación en wallet...</p>}
-      {isConfirming && <p className="status-message confirming">⏳ Procesando transacción...</p>}
+      {isSuccess && <p className="status-message success"><CheckCircle size={16} /> Transacción confirmada exitosamente!</p>}
+      {isPending && <p className="status-message pending"><Clock size={16} /> Esperando confirmación en wallet...</p>}
+      {isConfirming && <p className="status-message confirming"><Clock size={16} /> Procesando transacción...</p>}
     </div>
   );
 }
@@ -178,7 +188,7 @@ function TransactionCard({ txId, multisigAddress, userAddress, isOwner, onConfir
       <div className="tx-header">
         <span className="tx-id">TX #{txId}</span>
         <span className={`tx-status ${isExecuted ? 'status-executed' : 'status-pending'}`}>
-          {isExecuted ? '✅ Ejecutada' : '⏳ Pendiente'}
+          {isExecuted ? <><CheckCircle size={14} /> Ejecutada</> : <><Clock size={14} /> Pendiente</>}
         </span>
       </div>
 
@@ -200,7 +210,7 @@ function TransactionCard({ txId, multisigAddress, userAddress, isOwner, onConfir
           )}
           {functionArgs.length > 0 && (
             <details className="tx-args">
-              <summary>Ver argumentos ({functionArgs.length})</summary>
+              <summary><ChevronDown size={14} /> Ver argumentos ({functionArgs.length})</summary>
               <ul>
                 {functionArgs.map((arg, idx) => (
                   <li key={idx}>
