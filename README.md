@@ -29,11 +29,6 @@ Los contratos ya están deployados y verificados en Sepolia testnet:
    - Faucet 1: https://sepoliafaucet.com/
    - Faucet 2: https://www.alchemy.com/faucets/ethereum-sepolia
 
-4. **Alchemy API Key** (gratis)
-   - Crear cuenta en: https://www.alchemy.com/
-   - Crear app en Sepolia
-   - Copiar API Key
-
 ---
 
 ## 🚀 Instalación y Ejecución
@@ -52,31 +47,9 @@ cd frontend
 npm install
 ```
 
-### 3. Configurar variables de entorno
+### 3. Ejecutar el frontend
 
-Copiar el archivo de ejemplo y configurar tu API key:
-
-```bash
-cp frontend/.env.example frontend/.env
-```
-
-Luego editar `frontend/.env` con tu Alchemy API Key:
-
-```env
-VITE_ALCHEMY_API_KEY=tu_api_key_de_alchemy
-VITE_SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/tu_api_key_de_alchemy
-```
-
-**O usar la API key pública de prueba** (incluida para testnet):
-
-```env
-VITE_ALCHEMY_API_KEY=4Hf13T82Ux_f0yduRBcCl
-VITE_SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/4Hf13T82Ux_f0yduRBcCl
-```
-
-⚠️ **Nota**: La API key pública tiene límite de requests. Para uso intensivo, crea tu propia key gratis en [Alchemy](https://www.alchemy.com/).
-
-### 4. Ejecutar el frontend
+El archivo `.env` ya está incluido y configurado para conectarse a Sepolia.
 
 ```bash
 npm run dev
@@ -86,9 +59,7 @@ El servidor se iniciará en `http://localhost:5173`
 
 ---
 
-## 🔑 Cuentas de Administración (Solo Testnet)
-
-**ADVERTENCIA**: Estas cuentas y claves privadas son SOLO para testnet. NUNCA compartas claves privadas de cuentas con fondos reales.
+## 🔑 Cuentas de Administración
 
 ### Multisig Owners (2/3 confirmaciones requeridas):
 
@@ -273,40 +244,3 @@ Cobertura de tests: ~87% (requerido: 100% según especificación)
 
 ---
 
-## ⚠️ Advertencias de Seguridad
-
-1. **Este es un proyecto educativo/testnet**
-   - NO usar en producción sin auditoría profesional
-   - Las claves privadas compartidas son SOLO para testnet
-
-2. **Funciones peligrosas**:
-   - `transferOwnership`: Cambia el control total de la DAO
-   - `panic`: Pausa todas las operaciones
-   - `mintTokens`: Puede inflar el suministro
-
-3. **Limitaciones conocidas**:
-   - Cobertura de tests incompleta (87% vs 100% requerido)
-   - No hay límite de supply en mintTokens
-   - No hay pausa automática ante condiciones anómalas
-
----
-
-## 📄 Licencia
-
-MIT
-
----
-
-## 👥 Autor
-
-Proyecto desarrollado como parte del curso de Blockchain y Smart Contracts.
-
----
-
-## 🔗 Links Útiles
-
-- [Documentación de Hardhat](https://hardhat.org/docs)
-- [Documentación de Wagmi](https://wagmi.sh/)
-- [OpenZeppelin Contracts](https://docs.openzeppelin.com/contracts/)
-- [Sepolia Faucet](https://sepoliafaucet.com/)
-- [Etherscan Sepolia](https://sepolia.etherscan.io/)
