@@ -46,7 +46,19 @@ cd frontend
 npm install
 ```
 
-### 3. Ejecutar el frontend
+### 3.A Ejecutar el frontend
+
+El archivo `.env` no esta incluido en el repo, agregarlo con esto dentro
+```bash
+VITE_ALCHEMY_API_KEY=4Hf13T82Ux_f0yduRBcCl
+VITE_SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v24Hf13T82Ux_f0yduRBcCl
+```
+Y luego ejecutar en la carpeta de frontend
+
+```bash
+npm run dev
+```
+### 3.B Ejecutar el frontend
 
 El archivo `.env` ya está incluido y configurado para conectarse a Sepolia.
 
@@ -128,7 +140,7 @@ El servidor se iniciará en `http://localhost:5173`
   - Lock time de staking
   - Duración de propuestas
   - Tokens por voting power
-- **Transferir ownership** (¡PELIGROSO!)
+- **Transferir ownership** 
 
 ### 4. Multisig Panel - Aprobar Transacciones
 
