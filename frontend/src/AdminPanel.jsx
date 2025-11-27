@@ -15,6 +15,9 @@ function AdminPanel() {
   const [newTokenPrice, setNewTokenPrice] = useState('');
   const [newMinStakeVote, setNewMinStakeVote] = useState('');
   const [newMinStakePropose, setNewMinStakePropose] = useState('');
+  const [newStakingLockTime, setNewStakingLockTime] = useState('');
+  const [newProposalDuration, setNewProposalDuration] = useState('');
+  const [newTokensPerVP, setNewTokensPerVP] = useState('');
 
   // Leer parámetros actuales de la DAO
   const { data: tokenPrice } = useReadContract({
@@ -39,6 +42,24 @@ function AdminPanel() {
     address: DAO_ADDRESS,
     abi: DAO_ABI,
     functionName: 'isPaused',
+  });
+
+  const { data: stakingLockTime } = useReadContract({
+    address: DAO_ADDRESS,
+    abi: DAO_ABI,
+    functionName: 'stakingLockTime',
+  });
+
+  const { data: proposalDuration } = useReadContract({
+    address: DAO_ADDRESS,
+    abi: DAO_ABI,
+    functionName: 'proposalDuration',
+  });
+
+  const { data: tokensPerVotingPower } = useReadContract({
+    address: DAO_ADDRESS,
+    abi: DAO_ABI,
+    functionName: 'tokensPerVotingPower',
   });
 
   const { data: daoTokenBalance } = useReadContract({
@@ -135,6 +156,57 @@ function AdminPanel() {
     });
   };
 
+  const handleUpdateStakingLockTime = async () => {
+    if (!newStakingLockTime) return;
+
+    const updateData = encodeFunctionData({
+      abi: DAO_ABI,
+      functionName: 'updateStakingLockTime',
+      args: [BigInt(newStakingLockTime)], // En segundos
+    });
+
+    writeContract({
+      address: MULTISIG_OWNER_ADDRESS,
+      abi: MULTISIG_ABI,
+      functionName: 'submitTransaction',
+      args: [DAO_ADDRESS, 0n, updateData],
+    });
+  };
+
+  const handleUpdateProposalDuration = async () => {
+    if (!newProposalDuration) return;
+
+    const updateData = encodeFunctionData({
+      abi: DAO_ABI,
+      functionName: 'updateProposalDuration',
+      args: [BigInt(newProposalDuration)], // En segundos
+    });
+
+    writeContract({
+      address: MULTISIG_OWNER_ADDRESS,
+      abi: MULTISIG_ABI,
+      functionName: 'submitTransaction',
+      args: [DAO_ADDRESS, 0n, updateData],
+    });
+  };
+
+  const handleUpdateTokensPerVP = async () => {
+    if (!newTokensPerVP) return;
+
+    const updateData = encodeFunctionData({
+      abi: DAO_ABI,
+      functionName: 'updateTokensPerVotingPower',
+      args: [parseEther(newTokensPerVP)],
+    });
+
+    writeContract({
+      address: MULTISIG_OWNER_ADDRESS,
+      abi: MULTISIG_ABI,
+      functionName: 'submitTransaction',
+      args: [DAO_ADDRESS, 0n, updateData],
+    });
+  };
+
   return (
     <div className="admin-panel">
       <h2>⚙️ Panel de Administración</h2>
@@ -164,6 +236,18 @@ function AdminPanel() {
           <div className="status-item">
             <span className="status-label">Balance del DAO:</span>
             <span>{daoTokenBalance ? formatEther(daoTokenBalance) : '...'} DAOG</span>
+          </div>
+          <div className="status-item">
+            <span className="status-label">Staking Lock Time:</span>
+            <span>{stakingLockTime ? Number(stakingLockTime) : '...'} segundos</span>
+          </div>
+          <div className="status-item">
+            <span className="status-label">Duración de propuestas:</span>
+            <span>{proposalDuration ? Number(proposalDuration) : '...'} segundos</span>
+          </div>
+          <div className="status-item">
+            <span className="status-label">Tokens por Voting Power:</span>
+            <span>{tokensPerVotingPower ? formatEther(tokensPerVotingPower) : '...'} DAOG</span>
           </div>
         </div>
       </section>
@@ -235,6 +319,44 @@ function AdminPanel() {
           />
           <button onClick={handleUpdateMinStakePropose} disabled={isPending || isConfirming}>
             Actualizar
+          </button>
+        </div>
+        <div className="admin-action">
+          <h4>Cambiar Tiempo de Bloqueo del Staking</h4>
+          <input
+            type="number"
+            placeholder="Segundos (ej: 300 = 5 minutos)"
+            value={newStakingLockTime}
+            onChange={(e) => setNewStakingLockTime(e.target.value)}
+          />
+          <button onClick={handleUpdateStakingLockTime} disabled={isPending || isConfirming}>
+            Actualizar Lock Time
+          </button>
+        </div>
+
+        <div className="admin-action">
+          <h4>Cambiar Duración de Propuestas</h4>
+          <input
+            type="number"
+            placeholder="Segundos (ej: 86400 = 1 día)"
+            value={newProposalDuration}
+            onChange={(e) => setNewProposalDuration(e.target.value)}
+          />
+          <button onClick={handleUpdateProposalDuration} disabled={isPending || isConfirming}>
+            Actualizar Duración
+          </button>
+        </div>
+
+        <div className="admin-action">
+          <h4>Cambiar Tokens por Voting Power</h4>
+          <input
+            type="number"
+            placeholder="Cantidad de tokens = 1 VP"
+            value={newTokensPerVP}
+            onChange={(e) => setNewTokensPerVP(e.target.value)}
+          />
+          <button onClick={handleUpdateTokensPerVP} disabled={isPending || isConfirming}>
+            Actualizar Tokens/VP
           </button>
         </div>
       </section>

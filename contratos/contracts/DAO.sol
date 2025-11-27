@@ -234,6 +234,21 @@ contract DAO is Ownable, ReentrancyGuard {
         emit ParametersUpdated("minStakeToPropose", newMin);
     }
 
+    function updateStakingLockTime(uint256 newLockTime) external onlyOwner {
+        stakingLockTime = newLockTime;
+        emit ParametersUpdated("stakingLockTime", newLockTime);
+    }
+
+    function updateProposalDuration(uint256 newDuration) external onlyOwner {
+        proposalDuration = newDuration;
+        emit ParametersUpdated("proposalDuration", newDuration);
+    }
+
+    function updateTokensPerVotingPower(uint256 newTokensPerVP) external onlyOwner {
+        tokensPerVotingPower = newTokensPerVP;
+        emit ParametersUpdated("tokensPerVotingPower", newTokensPerVP);
+    }
+
     function mintTokens(address to, uint256 amount) external onlyOwner {
         require(to != address(0), "Invalid address");
         require(amount > 0, "Amount must be greater than 0");
